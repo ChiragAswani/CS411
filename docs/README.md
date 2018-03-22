@@ -24,3 +24,14 @@ Yelp
 Uber/Lyft
 Four Square
 Groupon
+
+
+Task: Investigate Platform APIs
+
+Chirag: Google
+
+Jacob: Twitter
+
+Natalya: Facebook
+
+Tyrone: Slack
