@@ -1,3 +1,4 @@
+var pug = require('pug');
 var express= require('express');
 var fs = require('fs');
 var readline = require('readline');
@@ -12,7 +13,10 @@ var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
 var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
 var app = express();
+var renderDataHtml = pug.compileFile('data.pug');
+
 app.listen(8000);
+// Endpoint Handlers
 app.get("/", function(req, res){
   var confirm = "reached";
   
@@ -27,23 +31,13 @@ app.get("/login", function(req, res){
         console.log('Error loading client secret file: ' + err);
       return;
     }
+    //
     // Authorize a client with the loaded credentials, then call the
     // Google Calendar API.
-    authorize(JSON.parse(content), listEvents);
+    authorize(JSON.parse(content), listEvents, res);
   });
 });
-/*
-// Load client secrets from a local file.
-fs.readFile('client_secret.json', function processClientSecrets(err, content) {
-  if (err) {
-      console.log('Error loading client secret file: ' + err);
-    return;
-  }
-  // Authorize a client with the loaded credentials, then call the
-  // Google Calendar API.
-  authorize(JSON.parse(content), listEvents);
-});
-*/
+
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
@@ -51,7 +45,7 @@ fs.readFile('client_secret.json', function processClientSecrets(err, content) {
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, callback) {
+function authorize(credentials, callback, res) {
   console.log(credentials)
   var clientSecret = credentials.web.client_secret;
   var clientId = credentials.web.client_id;
@@ -65,7 +59,7 @@ function authorize(credentials, callback) {
       getNewToken(oauth2Client, callback);
     } else {
       oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client);
+      callback(oauth2Client, res);
       
     }
   });
@@ -125,7 +119,7 @@ function storeToken(token) {
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listEvents(auth) {
+function listEvents(auth, res) {
   var calendar = google.calendar('v3');
   calendar.events.list({
     auth: auth,
@@ -143,12 +137,17 @@ function listEvents(auth) {
     if (events.length == 0) {
       console.log('No upcoming events found.');
     } else {
-      console.log('Upcoming 10 events:');
+      console.log('Upcoming events:');
+      var data = '';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
-        console.log('%s - %s', start, event.summary);
+        //console.log('%s - %s', start, event.summary);
+        var line = `<p>${start} - ${event.summary}</p>`
+        data += line;
       }
+      res.send(data);
+
     }
   });
 }
