@@ -13,7 +13,7 @@ var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
 var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
 var app = express();
-var renderDataHtml = pug.compileFile('data.pug');
+
 
 app.listen(8000);
 // Endpoint Handlers
@@ -141,10 +141,16 @@ function listEvents(auth, res) {
       var data = '';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
-        var start = event.start.dateTime || event.start.date;
-        //console.log('%s - %s', start, event.summary);
-        var line = `<p>${start} - ${event.summary}</p>`
-        data += line;
+        try{
+        	var start = event.start.dateTime || event.start.date;
+        	//console.log('%s - %s', start, event.summary);
+        	var line = `<p>${start} - ${event.summary}</p>`
+        	data += line;	
+        }
+        catch(err){
+        	console.log("failed this time")
+        }
+        
       }
       res.send(data);
 
