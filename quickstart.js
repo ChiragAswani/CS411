@@ -24,6 +24,7 @@ app.get("/", function(req, res){
 });
 
 app.get("/login", function(req, res){
+  var numEvents = parseInt(req["query"]["search"])
   console.log("Sucessfully logged in");
   // Load client secrets from a local file.
   fs.readFile('client_secret.json', function processClientSecrets(err, content) {
@@ -34,7 +35,7 @@ app.get("/login", function(req, res){
     //
     // Authorize a client with the loaded credentials, then call the
     // Google Calendar API.
-    authorize(JSON.parse(content), listEvents, res);
+    authorize(JSON.parse(content), listEvents, res, numEvents);
   });
 });
 
@@ -45,7 +46,7 @@ app.get("/login", function(req, res){
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, callback, res) {
+function authorize(credentials, callback, res, numEvents) {
   console.log(credentials)
   var clientSecret = credentials.web.client_secret;
   var clientId = credentials.web.client_id;
@@ -59,7 +60,7 @@ function authorize(credentials, callback, res) {
       getNewToken(oauth2Client, callback);
     } else {
       oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client, res);
+      callback(oauth2Client, res, numEvents);
       
     }
   });
@@ -119,7 +120,7 @@ function storeToken(token) {
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listEvents(auth, res) {
+function listEvents(auth, res, numEvents) {
   var calendar = google.calendar('v3');
   calendar.events.list({
     auth: auth,
@@ -139,7 +140,7 @@ function listEvents(auth, res) {
     } else {
       console.log('Upcoming events:');
       var data = '';
-      for (var i = 0; i < events.length; i++) {
+      for (var i = 0; i < numEvents; i++) {
         var event = events[i];
         try{
         	var start = event.start.dateTime || event.start.date;
