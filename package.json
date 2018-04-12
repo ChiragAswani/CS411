@@ -1,0 +1,31 @@
+{
+  "name": "package",
+  "version": "1.0.0",
+  "description": "Database for Socialite",
+  "main": "quickstart.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "google-auth-library": "^0.12.0",
+    "googleapis": "^25.0.0",
+    "mongodb": "^3.0.6",
+    "nodemon": "^1.17.3",
+    "pug": "^2.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/levyjr/CS411.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/levyjr/CS411/issues"
+  },
+  "homepage": "https://github.com/levyjr/CS411#readme"
+}

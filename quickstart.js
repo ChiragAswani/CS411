@@ -16,6 +16,7 @@ var app = express();
 
 
 app.listen(8000);
+console.log('Listening on 8000')
 // Endpoint Handlers
 app.get("/", function(req, res){
   var confirm = "reached";
