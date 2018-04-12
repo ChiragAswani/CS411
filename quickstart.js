@@ -20,9 +20,29 @@ app.listen(8000);
 app.get("/", function(req, res){
   var confirm = "reached";
   
-  res.sendFile(__dirname + "/index.html", {reached:confirm}); 
+  //res.sendFile(__dirname + "/index.html", {reached:confirm}); 
+  res.sendFile(__dirname + "/pages/login.html")
 });
 
+app.get("/login", function(req, res){
+  //var confirm = "reached";
+  console.log(req.query)
+  res.sendFile(__dirname + "/pages/userinput.html")
+  //res.sendFile(__dirname + "/index.html", {reached:confirm}); 
+  //res.sendFile(__dirname + "/pages/login.html")
+});
+
+app.get("/userinput", function(req, res){
+  //var confirm = "reached";
+  console.log(req.query)
+  //res.sendFile(__dirname + "/pages/userinput.html")
+  //res.sendFile(__dirname + "/index.html", {reached:confirm}); 
+  //res.sendFile(__dirname + "/pages/login.html")
+});
+
+
+
+/**
 app.get("/login", function(req, res){
   var numEvents = parseInt(req["query"]["search"])
   console.log("Sucessfully logged in");
@@ -38,6 +58,7 @@ app.get("/login", function(req, res){
     authorize(JSON.parse(content), listEvents, res, numEvents);
   });
 });
+**/
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
