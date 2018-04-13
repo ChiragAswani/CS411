@@ -35,7 +35,7 @@ const insertAuthDocuments = function(db, data, callback) {
 const insertUserDocuments = function(db, data, callback) {
   // Get the documents collection
   const collection = db.collection('user_preferences');
-  
+  // Insert some documents
   collection.insertMany([data], function(err, result) {
     assert.equal(err, null);
     assert.equal(1, result.result.n);
@@ -45,15 +45,12 @@ const insertUserDocuments = function(db, data, callback) {
   });
 }
 
-
 var SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
 var app = express();
-
-
 
 app.get("/", function(req, res){
   var confirm = "reached";
