@@ -5,6 +5,59 @@ var readline = require('readline');
 var google = require('googleapis');
 var googleAuth = require('google-auth-library');
 
+const MongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
+ 
+// Connection URL
+const url = 'mongodb://localhost:27017';
+ 
+// Database Name
+const dbName = 'myproject';
+ 
+// Use connect method to connect to the server
+
+
+/*
+// include the mongodb module
+var mongo = require('mongodb');
+
+// create a server instance
+var serverInstance = new mongo.Server('localhost', 27017, {auto_reconnect: true});
+
+// retrieve a database reference
+var dbref = new mongo.Db('myDatabaseName', serverInstance);
+
+// connect to database server
+dbref.open(function(err, dbref) {
+    // now a connection is established
+});
+
+// close a database connection
+dbref.close();
+// retrieve a collection reference
+dbref.collection('myCollectionName', function(err, collectionref) { 
+    // this is an asynchroneous operation
+console.log("Set up DB");
+});
+*/
+
+const insertDocuments = function(db, callback, data) {
+  // Get the documents collection
+  const collection = db.collection('documents');
+  // Insert some documents
+  collection.insertMany([
+    data
+  ], function(err, result) {
+    assert.equal(err, null);
+    assert.equal(3, result.result.n);
+    assert.equal(3, result.ops.length);
+    console.log("Inserted 3 documents into the collection");
+    callback(result);
+  });
+}
+
+//insertDocuments(db, function() {});
+
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/calendar-nodejs-quickstart.json
 var SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
@@ -15,8 +68,7 @@ var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 var app = express();
 
 
-app.listen(8000);
-console.log('Listening on 8000')
+
 // Endpoint Handlers
 app.get("/", function(req, res){
   var confirm = "reached";
@@ -28,7 +80,19 @@ app.get("/", function(req, res){
 app.get("/login", function(req, res){
   //var confirm = "reached";
   console.log(req.query)
+  MongoClient.connect(url, function(err, client) {
+  assert.equal(null, err);
+  console.log("Connected correctly to server");
+ 
+  const db = client.db(dbName);
+
+  insertDocuments(db, req.query, function() {});
+
+});
+  
+
   res.sendFile(__dirname + "/pages/userinput.html")
+
   //res.sendFile(__dirname + "/index.html", {reached:confirm}); 
   //res.sendFile(__dirname + "/pages/login.html")
 });
@@ -180,3 +244,5 @@ function listEvents(auth, res, numEvents) {
     }
   });
 }
+app.listen(8000);
+console.log('Listening on 8000')
