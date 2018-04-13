@@ -13,36 +13,13 @@ const url = 'mongodb://localhost:27017';
  
 // Database Name
 const dbName = 'socialite';
+
+var global_username = '';
  
 // Use connect method to connect to the server
 
 
-/*
-// include the mongodb module
-var mongo = require('mongodb');
-
-// create a server instance
-var serverInstance = new mongo.Server('localhost', 27017, {auto_reconnect: true});
-
-// retrieve a database reference
-var dbref = new mongo.Db('socialite', serverInstance);
-
-// connect to database server
-dbref.open(function(err, dbref) {
-    // now a connection is established
-});
-
-// close a database connection
-dbref.close();
-// retrieve a collection reference
-dbref.collection('socialite', function(err, collectionref) { 
-    // this is an asynchroneous operation
-console.log("Set up DB");
-});
-*/
-
-
-const insertDocuments = function(db, data, callback) {
+const insertAuthDocuments = function(db, data, callback) {
   // Get the documents collection
   const collection = db.collection('authentication');
   // Insert some documents
@@ -50,15 +27,25 @@ const insertDocuments = function(db, data, callback) {
     assert.equal(err, null);
     assert.equal(1, result.result.n);
     assert.equal(1, result.ops.length);
-    console.log("Inserted document into the collection");
+    console.log("Inserted document into authentication collection");
     callback(result);
   });
 }
 
-//insertDocuments(db, function() {});
+const insertUserDocuments = function(db, data, callback) {
+  // Get the documents collection
+  const collection = db.collection('user_preferences');
+  
+  collection.insertMany([data], function(err, result) {
+    assert.equal(err, null);
+    assert.equal(1, result.result.n);
+    assert.equal(1, result.ops.length);
+    console.log("Inserted document into user_preferences collection");
+    callback(result);
+  });
+}
 
-// If modifying these scopes, delete your previously saved credentials
-// at ~/.credentials/calendar-nodejs-quickstart.json
+
 var SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
@@ -68,59 +55,49 @@ var app = express();
 
 
 
-// Endpoint Handlers
 app.get("/", function(req, res){
   var confirm = "reached";
   
-  //res.sendFile(__dirname + "/index.html", {reached:confirm}); 
   res.sendFile(__dirname + "/pages/login.html")
 });
 
 app.get("/login", function(req, res){
-  //var confirm = "reached";
-  console.log(req.query)
+  global_username = req.query.username;
   MongoClient.connect(url, function(err, client) {
   assert.equal(null, err);
   console.log("Connected correctly to server");
   const db = client.db(dbName);
-  insertDocuments(db, req.query, function() {});
+  insertAuthDocuments(db, req.query, function() {global_username});
 
 });
   
 
   res.sendFile(__dirname + "/pages/userinput.html")
 
-  //res.sendFile(__dirname + "/index.html", {reached:confirm}); 
-  //res.sendFile(__dirname + "/pages/login.html")
 });
 
 app.get("/userinput", function(req, res){
   //var confirm = "reached";
-  console.log(req.query)
-  //res.sendFile(__dirname + "/pages/userinput.html")
-  //res.sendFile(__dirname + "/index.html", {reached:confirm}); 
-  //res.sendFile(__dirname + "/pages/login.html")
+  var user_preferences = req.query
+  for (var key in user_preferences){
+    if(user_preferences.hasOwnProperty(key)){
+      console.log(user_preferences[key])
+      if (typeof user_preferences[key] == 'string'){
+        user_preferences[key] = [user_preferences[key]]
+      }
+    } 
+  }
+  var test = global_username
+  var obj = {}
+  obj[test] = user_preferences
+  MongoClient.connect(url, function(err, client) {
+  assert.equal(null, err);
+  console.log("Connected correctly to server");
+  const db = client.db(dbName);
+  insertUserDocuments(db, obj, function() {});
 });
-
-
-
-/**
-app.get("/login", function(req, res){
-  var numEvents = parseInt(req["query"]["search"])
-  console.log("Sucessfully logged in");
-  // Load client secrets from a local file.
-  fs.readFile('client_secret.json', function processClientSecrets(err, content) {
-    if (err) {
-        console.log('Error loading client secret file: ' + err);
-      return;
-    }
-    //
-    // Authorize a client with the loaded credentials, then call the
-    // Google Calendar API.
-    authorize(JSON.parse(content), listEvents, res, numEvents);
-  });
+  
 });
-**/
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
