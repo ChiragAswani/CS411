@@ -12,7 +12,7 @@ const assert = require('assert');
 const url = 'mongodb://localhost:27017';
  
 // Database Name
-const dbName = 'myproject';
+const dbName = 'socialite';
  
 // Use connect method to connect to the server
 
@@ -25,7 +25,7 @@ var mongo = require('mongodb');
 var serverInstance = new mongo.Server('localhost', 27017, {auto_reconnect: true});
 
 // retrieve a database reference
-var dbref = new mongo.Db('myDatabaseName', serverInstance);
+var dbref = new mongo.Db('socialite', serverInstance);
 
 // connect to database server
 dbref.open(function(err, dbref) {
@@ -35,23 +35,22 @@ dbref.open(function(err, dbref) {
 // close a database connection
 dbref.close();
 // retrieve a collection reference
-dbref.collection('myCollectionName', function(err, collectionref) { 
+dbref.collection('socialite', function(err, collectionref) { 
     // this is an asynchroneous operation
 console.log("Set up DB");
 });
 */
 
-const insertDocuments = function(db, callback, data) {
+
+const insertDocuments = function(db, data, callback) {
   // Get the documents collection
-  const collection = db.collection('documents');
+  const collection = db.collection('authentication');
   // Insert some documents
-  collection.insertMany([
-    data
-  ], function(err, result) {
+  collection.insertMany([data], function(err, result) {
     assert.equal(err, null);
-    assert.equal(3, result.result.n);
-    assert.equal(3, result.ops.length);
-    console.log("Inserted 3 documents into the collection");
+    assert.equal(1, result.result.n);
+    assert.equal(1, result.ops.length);
+    console.log("Inserted document into the collection");
     callback(result);
   });
 }
@@ -83,9 +82,7 @@ app.get("/login", function(req, res){
   MongoClient.connect(url, function(err, client) {
   assert.equal(null, err);
   console.log("Connected correctly to server");
- 
   const db = client.db(dbName);
-
   insertDocuments(db, req.query, function() {});
 
 });
