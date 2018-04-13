@@ -56,9 +56,11 @@ var app = express();
 
 
 app.get("/", function(req, res){
-  var confirm = "reached";
-  
-  res.sendFile(__dirname + "/pages/login.html")
+  res.sendFile(__dirname + "/html/login_v1.html")
+});
+
+app.get("/signup", function(req, res){
+  res.sendFile(__dirname + "/pages/signup.html")
 });
 
 app.get("/login", function(req, res){
