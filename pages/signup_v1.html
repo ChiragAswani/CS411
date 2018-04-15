@@ -22,18 +22,18 @@
 				width: 500px;
 				height: 250px;
 			}
-			div.login {
+			div.signup {
 				position: absolute;
 				left: 35%;
 				top: 260px;
     			background-color: #000000;
 			    width: 300px;
-			    height: 255px;
+			    height: 330px;
 			    border: 3px solid #FFD700;
 			    padding: 25px;
 			    margin: 25px;
 			    font-family: 'Alegreya SC';
-			    font-size: 30px;
+			    font-size: 25px;
 			}
 			input.username {
 				position: relative;
@@ -49,6 +49,18 @@
 				text-align: center;
 			}
 			input.password {
+				position: relative;
+    			background-color: #FDFEFE;
+			    width: 90%;
+			    height: 20%;
+			    border: 4px double #FFD700;
+			    padding: 5px;
+			    margin: 5px;
+			    font-family: 'Alegreya SC';
+			    font-size: 15px;
+			    text-align: center;
+			}
+			input.confirm {
 				position: relative;
     			background-color: #FDFEFE;
 			    width: 90%;
@@ -76,25 +88,34 @@
 				font-family: 'Alegreya SC';
 			}
 		</style>
-		<title>Log In</title>
+		<title>Sign Up</title>
     </head>
     <body id = "wrapper" TEXT="F0FFFF">
 		<center>
 		<h1>Socialite</h1>
 		</center>
 		<img src="http://www.mediafire.com/convkey/22e1/bq8eahe7kd1mz7uzg.jpg">
-		<div class="login">
+		<div class="signup">
         	<form action="/login">
-        		Username:
+        		Choose your username:
         		<br>
+        		<! Create the commands >
             	<input class = "username"
             		type="text" placeholder="username" name="username">
-            	Password:
+            	Create a password:
             	<br>
+            	<! Create the commands >
             	<input class = "password"
             		type="text" placeholder="password" name="password">
+            	Confirm password:
+            	<br> 
+            	<! Create the commands >
+            	<input class = "confirm"
+            		type="text" placeholder="password" name="password"
+            	>
+            	<! Create the commands >
             	<input class = "submit"
-            		type="submit" value="Submit">
+            		type="submit" value="Sign Up">
         	</form>
         </div>
     </body>
