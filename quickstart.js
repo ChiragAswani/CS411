@@ -4,6 +4,8 @@ var fs = require('fs');
 var readline = require('readline');
 var google = require('googleapis');
 var googleAuth = require('google-auth-library');
+var promise = require('promise');
+var cookieParser = require('cookie-parser');
 
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
@@ -15,6 +17,7 @@ const url = 'mongodb://localhost:27017';
 const dbName = 'socialite';
 
 var global_username = '';
+
  
 // Use connect method to connect to the server
 
@@ -51,29 +54,60 @@ var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
 var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
 var app = express();
+app.use(cookieParser());
 
 app.get("/", function(req, res){
-  res.sendFile(__dirname + "/pages/login_v1.html")
+  res.sendFile(__dirname + "/pages/welcome_v1.html")
 });
 
+
+
 app.get("/signup", function(req, res){
-  res.sendFile(__dirname + "/pages/signup.html")
+  res.sendFile(__dirname + "/pages/signup_v1.html")
 });
 
 app.get("/login", function(req, res){
+  console.log("COOKIE" + res.signedCookies)
+  res.sendFile(__dirname + "/pages/login_v1.html")
+})
+
+app.get("/createaccount", function(req, res){
   global_username = req.query.username;
+  req.query = {'username': req.query.username, 'password':req.query.password[0]}
   MongoClient.connect(url, function(err, client) {
-  assert.equal(null, err);
-  console.log("Connected correctly to server");
-  const db = client.db(dbName);
-  insertAuthDocuments(db, req.query, function() {global_username});
-
-});
-  
-
+    assert.equal(null, err);
+    console.log("Connected correctly to server");
+    const db = client.db(dbName);
+    insertAuthDocuments(db, req.query, function() {global_username});
+  });
   res.sendFile(__dirname + "/pages/userinput.html")
+})
 
-});
+
+app.get("/submit", function(req, res){
+  MongoClient.connect(url, function(err, client) {
+    assert.equal(null, err);
+    console.log("Connected correctly to server");
+    const db = client.db(dbName);
+    db.collection("authentication").findOne({username: req.query.username, password: req.query.password}, function(err, result) {
+      if (err) throw err;
+      if (result == null){
+        res.sendFile(__dirname + "/pages/login_v1.html")
+      }
+      else{
+        console.log(result);
+        res.cookie(req.query.username, req.query.password);
+        res.sendFile(__dirname + "/pages/dfdsf.html")
+
+      }
+      
+    });
+  });
+  
+})
+
+
+
 
 app.get("/userinput", function(req, res){
   //var confirm = "reached";
@@ -86,9 +120,7 @@ app.get("/userinput", function(req, res){
       }
     } 
   }
-  var test = global_username
-  var obj = {}
-  obj[test] = user_preferences
+  var obj = {"username": global_username, user_preferences}
   MongoClient.connect(url, function(err, client) {
   assert.equal(null, err);
   console.log("Connected correctly to server");
