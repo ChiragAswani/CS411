@@ -6,6 +6,7 @@ var google = require('googleapis');
 var googleAuth = require('google-auth-library');
 var promise = require('promise');
 var cookieParser = require('cookie-parser');
+var Twitter = require('twitter');
 
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
@@ -18,7 +19,14 @@ const dbName = 'socialite';
 
 var global_username = '';
 
- 
+// Use connect method to connect to the server
+var twitterClient = new Twitter({
+    consumer_key: 'fBrLFbR6x7yXPy53xPeXaspkL',
+    consumer_secret: 'yAXuk3oiAxhFoiTz5Cvui6FmEDnkZNC8dJJjsC06crEZUDiZWu',
+    access_token_key: '925822128066265089-adk5NKVJMQLhicZEcaKSlhdBDOfvwKR',
+    access_token_secret: 'qVHnhMvV8RVj5xOBdgrD4dgj6Z0fGotLdoxY24EOs28TY'
+});
+
 // Use connect method to connect to the server
 
 
@@ -112,8 +120,20 @@ app.get("/submit", function(req, res){
   
 })
 
-
-
+app.get("/twitterfeed", function(req, res) {
+var params = {screen_name: 'nodejs'};
+twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
+    if (!error) {
+        tweets["events"].forEach(function(tweet) {
+            console.log("Tweet Object:");
+            console.log(tweet["message_create"]["message_data"]["text"]);
+        });
+    }
+    else {
+        console.log(error);
+    }
+});
+});
 
 app.get("/userinput", function(req, res){
   //var confirm = "reached";
