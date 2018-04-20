@@ -7,6 +7,7 @@
     "doc": "docs"
   },
   "dependencies": {
+    "browser-cookies": "^1.2.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
     "google-auth-library": "^0.12.0",

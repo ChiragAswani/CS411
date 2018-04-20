@@ -67,8 +67,14 @@ app.get("/signup", function(req, res){
 });
 
 app.get("/login", function(req, res){
-  console.log("COOKIE" + res.signedCookies)
-  res.sendFile(__dirname + "/pages/login_v1.html")
+  //res.clearCookie("chiraga");
+  if(req.cookies == null){
+    res.sendFile(__dirname + "/pages/login_v1.html")
+  }
+  else{
+    res.sendFile(__dirname + "/pages/test.html")
+  }
+  
 })
 
 app.get("/createaccount", function(req, res){
@@ -97,7 +103,7 @@ app.get("/submit", function(req, res){
       else{
         console.log(result);
         res.cookie(req.query.username, req.query.password);
-        res.sendFile(__dirname + "/pages/dfdsf.html")
+        res.sendFile(__dirname + "/pages/webpage_v1.html")
 
       }
       
@@ -126,6 +132,7 @@ app.get("/userinput", function(req, res){
   console.log("Connected correctly to server");
   const db = client.db(dbName);
   insertUserDocuments(db, obj, function() {});
+  res.sendFile(__dirname + "/pages/webpage_v1.html")
 });
   
 });
