@@ -58,3 +58,13 @@ we are using.
 
 We will using our MongoDB database as a cache to store authentication data so that the user does not have to log in every time
 they visit the web site. This data will be stored as a cookie. 
+
+They way our caching works is as follows:
+1. A user signs up for an account
+2. username and password gets stored in DB and is cached using cookie-parser
+3. user gets to decide what social media inputs he wants, gets stored in DB (currently not working)
+4. once a user goes back into homepage (localhost:8000) and wants to sign in again, he clicks log in
+5. login reads the current cache (username: xxx) (password: xxx) and checks if that is in the db
+6. If in the database: go to homepage, if it is not in the db: go to the login page
+7. This process only works once, we are working on figuring out a way to keep the cache because after 2 consecutive tries it shows up as "undefined"
+
