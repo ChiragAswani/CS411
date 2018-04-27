@@ -27,8 +27,12 @@
 			font-family: 'Alegreya SC';
 			color: white;
 		}
-		div.webpage_window{
-			background-size: auto;
+		div.calendar{
+			position: relative;
+			margin-right: 20px;
+			margin-left: 40px;
+			margin-top: 10px;
+			margin-bottom: 10px;
 		}
 		nav.navbar {
 			background-color: black;
@@ -115,7 +119,7 @@
 	      	</span></button>
 		    </form>
 				</div>
-	      <li><a href="app_selection" style = "color: white;">
+	      <li><a href="app_selection_v1.html" style = "color: white;">
 	      	<span class="glyphicon glyphicon-user" style = "color: white;">
 	      	</span> Settings </a></li>
 	      <li><a href="#" style = "color: white;"><span class="glyphicon glyphicon-log-out"></span> Logout </a></li>
@@ -135,7 +139,9 @@
 				<span class = "glyphicon glyphicon-globe" style = "color: white;">
 	      </span>
 	  		News Feed</a>
-  		<a href="calendar_v1.html"> 
+  		<a href="#calendar" style = "color: #FFD700;
+		  text-decoration: none;
+		  background-color: #273746;"> 
 	  		<span class = "glyphicon glyphicon-calendar" style = "color: white;">
 	      </span>
 	      Calendar</a> 
@@ -143,9 +149,15 @@
 	</nav>
 
 	<div class="content-wrapper">
-		<div class="webpage_window">
-				<img src = "http://www.hanedanrpg.com/photos/hanedanrpg/4/15025.jpg" style = "height: 683px;
-			width: 1384px;">
+		<div class="calendar">
+			<link type=”text/css” rel=”stylesheet” href=”https://www.google.com/calendar/969ff39784188d8d017a0c60c8f2558aembedcompiled_fastui.css”>
+			<script type=”text/javascript” src=”https://www.google.com/calendar/969ff39784188d8d017a0c60c8f2558aembedcompiled__en_gb.js”></script>
+			<iframe src="https://calendar.google.com/calendar/embed?showTitle=0&amp;height=650&amp;wkst=1&amp;bgcolor=%23000000&amp;src=nshelch%40gmail.com&amp;color=%231B887A&amp;ctz=America%2FNew_York"
+			style = "background-color: black"
+			width="1300" 
+			height="650" 
+			frameborder="0" 
+			scrolling="no"></iframe>
 		</div>
 	</div>
 

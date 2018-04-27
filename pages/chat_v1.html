@@ -27,8 +27,56 @@
 			font-family: 'Alegreya SC';
 			color: white;
 		}
-		div.webpage_window{
-			background-size: auto;
+		div.messages{
+			position: relative;
+			margin-right: 20px;
+			margin-left: 40px;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+		.ind_message{
+			float: top;
+			border: 2px solid #566573;
+		    background-color: #D5D8DC;
+		    border-radius: 5px;
+		    padding: 10px;
+		    margin: 10px 0;
+			font-family: 'Alegreya SC';
+			color: black;
+			font-size: 15px;
+		}
+		.ind_message::after {
+		    content: "";
+		    clear: both;
+		    display: table;
+		}
+		.ind_message img {
+		    float: left;
+		    max-width: 60px;
+		    width: 100%;
+		    margin-right: 20px;
+		    border-radius: 50%;
+		    border: black solid 2px;
+		}
+
+		.ind_message img.right {
+		    float: right;
+		    margin-left: 20px;
+		    margin-right:0;
+		}
+		.darker{
+			background-color: #ABB2B9;
+			border-color: #2C3E50;
+		}
+		.time-right {
+		    float: right;
+		    color: black;
+		    font-weight: bold;
+		}
+		.time-left {
+		    float: left;
+		    color: black;
+		    font-weight: bold;
 		}
 		nav.navbar {
 			background-color: black;
@@ -50,15 +98,15 @@
 		  color: black;
 		}
 		.sidenav {
-	    height: 93.5%;
-	    width: 151px;
-	    position: fixed;
-	    bottom: 0;
-	    left: 0;
-	    background-color: black;
-	    overflow-x: hidden;
-	    padding-top: 20px;
-	    font-family: 'Alegreya SC';
+		    height: 93.5%;
+		    width: 151px;
+		    position: fixed;
+		    bottom: 0;
+		    left: 0;
+		    background-color: black;
+		    overflow-x: hidden;
+		    padding-top: 20px;
+		    font-family: 'Alegreya SC';
 		}
 		.sidenav a {
 		  padding: 6px 8px 6px 16px;
@@ -74,19 +122,19 @@
 		.sidenav a.active{
 			list-style-type: none;
 			color: white;
-		  text-decoration: none;
-		  background-color: #273746;
+		  	text-decoration: none;
+		  	background-color: #273746;
 		}
 		.glyphicon {
 			font-size: 15px;
 			letter-spacing: 5px;
 		}
 		li.menu {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #333;
+		    list-style-type: none;
+		    margin: 0;
+		    padding: 0;
+		    overflow: hidden;
+		    background-color: #333;
 		}
 
 
@@ -115,7 +163,7 @@
 	      	</span></button>
 		    </form>
 				</div>
-	      <li><a href="app_selection" style = "color: white;">
+	      <li><a href="app_selection_v1.html" style = "color: white;">
 	      	<span class="glyphicon glyphicon-user" style = "color: white;">
 	      	</span> Settings </a></li>
 	      <li><a href="#" style = "color: white;"><span class="glyphicon glyphicon-log-out"></span> Logout </a></li>
@@ -125,7 +173,9 @@
 
 		<div class="sidenav">
 			<!-- <li class ="active"> -->
-      <a href="messages_v1.html">
+      <a href="messages_v1.html" style = "color: #FFD700;
+		  text-decoration: none;
+		  background-color: #273746;">
       	<span class = "glyphicon glyphicon-envelope" style = "color: white;">
       	</span>
       	Messages
@@ -143,9 +193,42 @@
 	</nav>
 
 	<div class="content-wrapper">
-		<div class="webpage_window">
-				<img src = "http://www.hanedanrpg.com/photos/hanedanrpg/4/15025.jpg" style = "height: 683px;
-			width: 1384px;">
+		<div class="messages">
+			<div class="ind_message">
+				<img src="yeti.png" alt="Avatar" style="width:100%;">
+			  <p>Why am I always so tired?!</p>
+			  <span class="time-right">11:00</span>
+			</div>
+
+			<div class="ind_message darker">
+				<img src="brain.png" alt="Avatar" class = "right" style="width:100%;">
+			  <p>Not enough sleep, poor diet, dehydration, not enough exercise...</p>
+			  <span class="time-left">11:01</span>
+			</div>
+
+			<div class="ind_message">
+				<img src="yeti.png" alt="Avatar" style="width:100%;">
+			  <p>If only there was something I could DO about it!</p>
+			  <span class="time-right">11:02</span>
+			</div>
+
+			<div class="ind_message darker">
+				<img src="brain.png" alt="Avatar" class = "right" style="width:100%;">
+			  <p>Go to bed earlier, eat healthier, go for a walk...?</p>
+			  <span class="time-left">11:03</span>
+			</div>
+
+			<div class="ind_message">
+				<img src="yeti.png" alt="Avatar" style="width:100%;">
+			  <p>but there isn't.</p>
+			  <span class="time-right">11:04</span>
+			</div>
+
+			<div class="ind_message darker">
+				<img src="brain.png" alt="Avatar" class = "right" style="width:100%;">
+			  <p>okay.</p>
+			  <span class="time-left">11:05</span>
+			</div>
 		</div>
 	</div>
 
