@@ -54,15 +54,10 @@
 		    float: left;
 		    max-width: 60px;
 		    width: 100%;
+		    margin-top: 15px;
 		    margin-right: 20px;
 		    border-radius: 50%;
 		    border: black solid 2px;
-		}
-
-		.ind_message img.right {
-		    float: right;
-		    margin-left: 20px;
-		    margin-right:0;
 		}
 		.darker{
 			background-color: #ABB2B9;
@@ -73,10 +68,11 @@
 		    color: black;
 		    font-weight: bold;
 		}
-		.time-left {
-		    float: left;
-		    color: black;
-		    font-weight: bold;
+		h4.name {
+			font-weight: bold;
+		}
+		p.unread {
+			font-weight: bolder;
 		}
 		nav.navbar {
 			background-color: black;
@@ -195,39 +191,31 @@
 	<div class="content-wrapper">
 		<div class="messages">
 			<div class="ind_message">
-				<img src="yeti.png" alt="Avatar" style="width:100%;">
-			  <p>Why am I always so tired?!</p>
+				<img src="slack-icon.png" alt="Avatar" style="width:100%;">
+				<h4 class = "name"> Jacob </h4>
+			  <p class="unread">Why am I always so tired?!</p>
 			  <span class="time-right">11:00</span>
 			</div>
 
 			<div class="ind_message darker">
-				<img src="brain.png" alt="Avatar" class = "right" style="width:100%;">
-			  <p>Not enough sleep, poor diet, dehydration, not enough exercise...</p>
-			  <span class="time-left">11:01</span>
+				<img src="square-twitter-256.png" alt="Avatar" class = "right" style="width:100%;">
+				<h4 class = "name"> Tyrone </h4>
+			  <p class="unread">Not enough sleep, poor diet, dehydration, not enough exercise...</p>
+			  <span class="time-right">11:01</span>
 			</div>
 
 			<div class="ind_message">
-				<img src="yeti.png" alt="Avatar" style="width:100%;">
+				<img src="slack-icon.png" alt="Avatar" style="width:100%;">
+				<h4 class = "name"> Chirag </h4>
 			  <p>If only there was something I could DO about it!</p>
 			  <span class="time-right">11:02</span>
 			</div>
 
 			<div class="ind_message darker">
-				<img src="brain.png" alt="Avatar" class = "right" style="width:100%;">
+				<img src="slack-icon.png" alt="Avatar" class = "right" style="width:100%;">
+				<h4 class = "name"> Natalya </h4>
 			  <p>Go to bed earlier, eat healthier, go for a walk...?</p>
-			  <span class="time-left">11:03</span>
-			</div>
-
-			<div class="ind_message">
-				<img src="yeti.png" alt="Avatar" style="width:100%;">
-			  <p>but there isn't.</p>
-			  <span class="time-right">11:04</span>
-			</div>
-
-			<div class="ind_message darker">
-				<img src="brain.png" alt="Avatar" class = "right" style="width:100%;">
-			  <p>okay.</p>
-			  <span class="time-left">11:05</span>
+			  <span class="time-right">11:03</span>
 			</div>
 		</div>
 	</div>
