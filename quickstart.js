@@ -7,7 +7,7 @@ var googleAuth = require('google-auth-library');
 var promise = require('promise');
 var cookieParser = require('cookie-parser');
 var Twitter = require('twitter');
-
+var Slack = require('slack');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
  
@@ -19,6 +19,8 @@ const dbName = 'socialite';
 
 var global_username = '';
 
+/* API clients */
+
 // Use connect method to connect to the server
 var twitterClient = new Twitter({
     consumer_key: 'fBrLFbR6x7yXPy53xPeXaspkL',
@@ -26,6 +28,11 @@ var twitterClient = new Twitter({
     access_token_key: '925822128066265089-adk5NKVJMQLhicZEcaKSlhdBDOfvwKR',
     access_token_secret: 'qVHnhMvV8RVj5xOBdgrD4dgj6Z0fGotLdoxY24EOs28TY'
 });
+
+var slackToken = 'xoxp-309091349812-310072836630-354227586530-bad1c832fefcd03100e42e6a58d1b5e7'
+var slackClient =  new Slack({
+    access_token: slackToken,
+    scope: 'read'});
 
 // Use connect method to connect to the server
 
@@ -120,7 +127,7 @@ app.get("/submit", function(req, res){
   
 })
 
-app.get("/twitterfeed", function(req, res) {
+app.get("/twitter", function(req, res) {
 var params = {screen_name: 'nodejs'};
 twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
     if (!error) {
@@ -133,6 +140,37 @@ twitterClient.get('direct_messages/events/list', params, function(error, tweets,
         console.log(error);
     }
 });
+});
+
+app.get("/slack", function(req, res) {
+    var channelName = "general";
+    // Get list of channels to grab specific channel id
+    slackClient.channels.list({
+        token: slackToken
+    }).then(function(channelList) {
+        var channelId = "";
+        for(var i = 0;i < channelList['channels'].length; i++) {
+            var channel = channelList['channels'][i];
+            if (channel['name'] == channelName) {
+                channelId = channel['id'];
+                break;
+            }
+        }
+
+        console.log(channelId);
+        // Get history of specified channel messages
+        slackClient.channels.history({
+            token: slackToken,
+            channel: channelId
+        }).then(function(history) {
+            console.log(history["messages"]);
+            var msgs = history["messages"];
+            for(var i = 0; i < msgs.length; i++) {
+                console.log(msgs[i]["text"]);
+            }
+        });
+
+    });
 });
 
 app.get("/userinput", function(req, res){
