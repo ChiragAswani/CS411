@@ -45,13 +45,24 @@
 		  text-decoration: none;
 		  background-color: #273746;
 		}
-		.active{
+		/*.active{
+			list-style-type: none;
+			color: #FFD700;
+		  text-decoration: none;
 		  background-color: #273746;
-		}
+		}*/
 		.glyphicon {
 			font-size: 15px;
 			letter-spacing: 5px;
 		}
+		li.menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+		}
+
 
 	</style>
 	<title>Socialite</title>
@@ -79,11 +90,13 @@
     	</ul>
 		</div>
 		<div class="sidenav">
+			<!-- <li class ="active"> -->
       <a href="#messages">
       	<span class = "glyphicon glyphicon-envelope" style = "color: white;">
       	</span>
       	Messages
       </a>
+    <!--  --></li>
   		<a href="#newsfeed"> 
 				<span class = "glyphicon glyphicon-globe" style = "color: white;">
 	      </span>
