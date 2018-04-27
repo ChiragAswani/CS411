@@ -101,7 +101,7 @@ app.get("/createaccount", function(req, res){
     const db = client.db(dbName);
     insertAuthDocuments(db, req.query, function() {global_username});
   });
-  res.sendFile(__dirname + "/pages/userinput.html")
+  res.sendFile(__dirname + "/pages/app_selection_v1.html")
 })
 
 
@@ -173,8 +173,28 @@ app.get("/slack", function(req, res) {
     });
 });
 
+app.get("/app_selection", function(req, res){
+  var user_preferences = req.query
+  for (var key in user_preferences){
+    if(user_preferences.hasOwnProperty(key)){
+      console.log(user_preferences[key])
+      if (typeof user_preferences[key] == 'string'){
+        user_preferences[key] = [user_preferences[key]]
+      }
+    } 
+  }
+  var obj = {"username": global_username, user_preferences}
+  MongoClient.connect(url, function(err, client) {
+  assert.equal(null, err);
+  console.log("Connected correctly to server");
+  const db = client.db(dbName);
+  insertUserDocuments(db, obj, function() {});
+  res.sendFile(__dirname + "/pages/app_selection_v1.html");
+});
+
+});
+
 app.get("/userinput", function(req, res){
-  //var confirm = "reached";
   var user_preferences = req.query
   for (var key in user_preferences){
     if(user_preferences.hasOwnProperty(key)){
