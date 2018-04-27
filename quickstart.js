@@ -1,3 +1,4 @@
+//node modules
 var pug = require('pug');
 var express= require('express');
 var fs = require('fs');
@@ -7,17 +8,21 @@ var googleAuth = require('google-auth-library');
 var promise = require('promise');
 var cookieParser = require('cookie-parser');
 var Twitter = require('twitter');
-
+var Slack = require('slack');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
  
-// Connection URL
+//Mongo Connections
 const url = 'mongodb://localhost:27017';
- 
-// Database Name
 const dbName = 'socialite';
 
+//Global Variables
 var global_username = '';
+
+//Connections
+var app = express();
+app.use(cookieParser());
+/* API clients */
 
 // Use connect method to connect to the server
 var twitterClient = new Twitter({
@@ -27,77 +32,108 @@ var twitterClient = new Twitter({
     access_token_secret: 'qVHnhMvV8RVj5xOBdgrD4dgj6Z0fGotLdoxY24EOs28TY'
 });
 
+var slackToken = 'xoxp-309091349812-310072836630-354227586530-bad1c832fefcd03100e42e6a58d1b5e7'
+var slackClient =  new Slack({
+    access_token: slackToken,
+    scope: 'read'});
+
 // Use connect method to connect to the server
 
 
+//Inserts username and password into mongo database
 const insertAuthDocuments = function(db, data, callback) {
-  // Get the documents collection
   const collection = db.collection('authentication');
-  // Insert some documents
   collection.insertMany([data], function(err, result) {
     assert.equal(err, null);
     assert.equal(1, result.result.n);
     assert.equal(1, result.ops.length);
-    console.log("Inserted document into authentication collection");
+    console.log("Inserted" + data + "Into" + "Mongo collection: authentication");
     callback(result);
   });
 }
 
+
+//Inserts user preferences into mongo database 
 const insertUserDocuments = function(db, data, callback) {
-  // Get the documents collection
   const collection = db.collection('user_preferences');
-  // Insert some documents
   collection.insertMany([data], function(err, result) {
     assert.equal(err, null);
     assert.equal(1, result.result.n);
     assert.equal(1, result.ops.length);
-    console.log("Inserted document into user_preferences collection");
+    console.log("Inserted" + data + "Into" + "Mongo collection: user_preferences");
     callback(result);
   });
 }
 
-var SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
-var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
-    process.env.USERPROFILE) + '/.credentials/';
-var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
-
-var app = express();
-app.use(cookieParser());
-
+//Sets default homepage to welcome_v1.html
 app.get("/", function(req, res){
+  //res.clearCookie("username");
+  //res.clearCookie("password");
   res.sendFile(__dirname + "/pages/welcome_v1.html")
 });
 
-
-
+//welcome_v1.html -> signup_v1.html
 app.get("/signup", function(req, res){
   res.sendFile(__dirname + "/pages/signup_v1.html")
 });
 
+
+/**
+***Looks up cookie (username='',password='') in mongodb
+***Valid Cookie: update cookie, go to webpage_v1.html
+***Invalid Cookie: go to login_v1.html
+**/
+
+//welcome_v1.html -> login_v1.html
 app.get("/login", function(req, res){
-  //res.clearCookie("chiraga");
-  if(req.cookies == null){
-    res.sendFile(__dirname + "/pages/login_v1.html")
-  }
-  else{
-    res.sendFile(__dirname + "/pages/test.html")
-  }
-  
+  MongoClient.connect(url, function(err, client) {
+    assert.equal(null, err);
+    const db = client.db(dbName);
+    db.collection("authentication").findOne({username: req.cookies.username, password: req.cookies.password}, function(err, result) {
+      if (err) throw err;
+      if (result == null){ //cookie not in db
+        res.sendFile(__dirname + "/pages/login_v1.html")
+      }
+      else{ //cookie in db
+        res.clearCookie("username");
+    	res.clearCookie("password");
+        res.cookie("username", req.query.username);
+        res.cookie("password", req.query.password);
+        console.log("Sucessfully logged in with cookies");
+        res.sendFile(__dirname + "/pages/webpage_v1.html")
+      }  
+    });
+  }); 
 })
 
+/**
+***Creates an account by inserting the username and password into the mongo database
+***Sets the username and password cookies
+**/
+
+//signup_v1.html -> userinput.html
 app.get("/createaccount", function(req, res){
   global_username = req.query.username;
   req.query = {'username': req.query.username, 'password':req.query.password[0]}
   MongoClient.connect(url, function(err, client) {
     assert.equal(null, err);
-    console.log("Connected correctly to server");
     const db = client.db(dbName);
     insertAuthDocuments(db, req.query, function() {global_username});
+    res.clearCookie("username");
+    res.clearCookie("password");
+    res.cookie("username", req.query.username);
+    res.cookie("password", req.query.password);
   });
-  res.sendFile(__dirname + "/pages/userinput.html")
+  res.sendFile(__dirname + "/pages/app_selection_v1.html")
 })
 
+/**
+***Assumes that the username and password couldn't be read from the cookies
+***Username and password exists: webpage_v1.html
+***Username and password !exists: login_v1.html 
+**/
 
+//login_v1.html -> webpage_v1.html
 app.get("/submit", function(req, res){
   MongoClient.connect(url, function(err, client) {
     assert.equal(null, err);
@@ -106,11 +142,15 @@ app.get("/submit", function(req, res){
     db.collection("authentication").findOne({username: req.query.username, password: req.query.password}, function(err, result) {
       if (err) throw err;
       if (result == null){
+        //username doesnt exist
         res.sendFile(__dirname + "/pages/login_v1.html")
       }
       else{
         console.log(result);
-        res.cookie(req.query.username, req.query.password);
+        res.clearCookie("username");
+        res.clearCookie("password");
+        res.cookie("username", req.query.username);
+        res.cookie("password", req.query.password);
         res.sendFile(__dirname + "/pages/webpage_v1.html")
 
       }
@@ -120,7 +160,7 @@ app.get("/submit", function(req, res){
   
 })
 
-app.get("/twitterfeed", function(req, res) {
+app.get("/twitter", function(req, res) {
 var params = {screen_name: 'nodejs'};
 twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
     if (!error) {
@@ -135,8 +175,38 @@ twitterClient.get('direct_messages/events/list', params, function(error, tweets,
 });
 });
 
-app.get("/userinput", function(req, res){
-  //var confirm = "reached";
+app.get("/slack", function(req, res) {
+    var channelName = "general";
+    // Get list of channels to grab specific channel id
+    slackClient.channels.list({
+        token: slackToken
+    }).then(function(channelList) {
+        var channelId = "";
+        for(var i = 0;i < channelList['channels'].length; i++) {
+            var channel = channelList['channels'][i];
+            if (channel['name'] == channelName) {
+                channelId = channel['id'];
+                break;
+            }
+        }
+
+        console.log(channelId);
+        // Get history of specified channel messages
+        slackClient.channels.history({
+            token: slackToken,
+            channel: channelId
+        }).then(function(history) {
+            console.log(history["messages"]);
+            var msgs = history["messages"];
+            for(var i = 0; i < msgs.length; i++) {
+                console.log(msgs[i]["text"]);
+            }
+        });
+
+    });
+});
+
+app.get("/app_selection", function(req, res){
   var user_preferences = req.query
   for (var key in user_preferences){
     if(user_preferences.hasOwnProperty(key)){
@@ -152,8 +222,29 @@ app.get("/userinput", function(req, res){
   console.log("Connected correctly to server");
   const db = client.db(dbName);
   insertUserDocuments(db, obj, function() {});
-  res.sendFile(__dirname + "/pages/webpage_v1.html")
+  res.sendFile(__dirname + "/pages/app_selection_v1.html");
 });
+
+});
+
+app.get("/userinput", function(req, res){
+  var user_preferences = req.query
+  for (var key in user_preferences){
+    if(user_preferences.hasOwnProperty(key)){
+      console.log(user_preferences[key])
+      if (typeof user_preferences[key] == 'string'){
+        user_preferences[key] = [user_preferences[key]]
+      }
+    } 
+  }
+  var obj = {"username": global_username, user_preferences}
+  MongoClient.connect(url, function(err, client) {
+    assert.equal(null, err);
+    console.log("Connected correctly to server");
+    const db = client.db(dbName);
+    insertUserDocuments(db, obj, function() {});
+    //res.sendFile(__dirname + "/pages/webpage_v1.html")
+  });
   
 });
 
