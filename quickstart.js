@@ -123,8 +123,9 @@ app.get("/createaccount", function(req, res){
     res.clearCookie("password");
     res.cookie("username", req.query.username);
     res.cookie("password", req.query.password);
+    res.sendFile(__dirname + "/pages/app_selection_v1.html")
   });
-  res.sendFile(__dirname + "/pages/app_selection_v1.html")
+  
 })
 
 /**
