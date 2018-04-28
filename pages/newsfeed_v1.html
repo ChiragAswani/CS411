@@ -27,12 +27,44 @@
 			font-family: 'Alegreya SC';
 			color: white;
 		}
-		div.newsfeed{
+		blockquote.twitter-tweet {
 			position: relative;
-			margin-right: 20px;
-			margin-left: 40px;
+			margin-left: 20px;
 			margin-top: 10px;
 			margin-bottom: 10px;
+		  display: inline-block;
+		  font-family: "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;
+		  font-size: 12px;
+		  font-weight: bold;
+		  line-height: 16px;
+		  border-color: #566573;
+		  border-radius: 5px;
+		  border-style: solid;
+		  border-width: 2px;
+		  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+		  padding: 0 16px 16px 16px;
+		  max-width: 468px;
+		  background-color: #ABB2B9;
+		  color: black;
+		}
+
+		blockquote.twitter-tweet p {
+		  font-size: 16px;
+		  font-weight: normal;
+		  line-height: 20px;
+		  color: black;
+		}
+
+		blockquote.twitter-tweet a {
+		  color: black;
+		  font-weight: normal;
+		  text-decoration: none;
+		  outline: 0 none;
+		}
+
+		blockquote.twitter-tweet a:hover,
+		blockquote.twitter-tweet a:focus {
+		  text-decoration: underline;
 		}
 		nav.navbar {
 			background-color: black;
@@ -54,15 +86,15 @@
 		  color: black;
 		}
 		.sidenav {
-	    height: 93.5%;
-	    width: 151px;
-	    position: fixed;
-	    bottom: 0;
-	    left: 0;
-	    background-color: black;
-	    overflow-x: hidden;
-	    padding-top: 20px;
-	    font-family: 'Alegreya SC';
+		    height: 93.5%;
+		    width: 151px;
+		    position: fixed;
+		    bottom: 0;
+		    left: 0;
+		    background-color: black;
+		    overflow-x: hidden;
+		    padding-top: 20px;
+		    font-family: 'Alegreya SC';
 		}
 		.sidenav a {
 		  padding: 6px 8px 6px 16px;
@@ -86,11 +118,11 @@
 			letter-spacing: 5px;
 		}
 		li.menu {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #333;
+		    list-style-type: none;
+		    margin: 0;
+		    padding: 0;
+		    overflow: hidden;
+		    background-color: #333;
 		}
 
 
@@ -149,10 +181,14 @@
 	</nav>
 
 	<div class="content-wrapper">
-		<div class="newsfeed">
-			
-		</div>
+		<blockquote class="twitter-tweet" data-lang="en">
+		  <p lang="en" dir="ltr">just setting up my twttr</p>&mdash; Jack (@jack) <a href="https://twitter.com/jack/status/20">March 21, 2006</a>
+		</blockquote>
+		<blockquote class="twitter-tweet" data-lang="en">
+		  <p lang="en" dir="ltr">just setting up my twttr</p>&mdash; Jack (@jack) <a href="https://twitter.com/jack/status/20">March 21, 2006</a>
+		</blockquote>
 	</div>
+
 
 	</body>
 </html>
