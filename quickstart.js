@@ -1,4 +1,4 @@
-//node modules
+  //node modules
 var pug = require('pug');
 var express= require('express');
 var fs = require('fs');
@@ -72,6 +72,21 @@ app.get("/", function(req, res){
   res.sendFile(__dirname + "/pages/welcome_v1.html")
 });
 
+app.get("/messages_v1.html", function(req, res){
+  res.sendFile(__dirname + "/pages/messages_v1.html")
+});
+app.get("/newsfeed_v1.html", function(req, res){
+  res.sendFile(__dirname + "/pages/newsfeed_v1.html")
+});
+app.get("/calendar_v1.html", function(req, res){
+  res.sendFile(__dirname + "/pages/calendar_v1.html")
+});
+app.get("/webpage_v1.html", function(req, res){
+  res.sendFile(__dirname + "/pages/webpage_v1.html")
+});
+app.get("/app_selection_v1.html", function(req, res){
+  res.sendFile(__dirname + "/pages/app_selection_v1.html")
+});
 //welcome_v1.html -> signup_v1.html
 app.get("/signup", function(req, res){
   res.sendFile(__dirname + "/pages/signup_v1.html")
@@ -244,7 +259,7 @@ app.get("/userinput", function(req, res){
     console.log("Connected correctly to server");
     const db = client.db(dbName);
     insertUserDocuments(db, obj, function() {});
-    //res.sendFile(__dirname + "/pages/webpage_v1.html")
+    res.sendFile(__dirname + "/pages/webpage_v1.html")
   });
   
 });
