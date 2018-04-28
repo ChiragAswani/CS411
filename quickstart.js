@@ -67,24 +67,27 @@ const insertUserDocuments = function(db, data, callback) {
 
 //Sets default homepage to welcome_v1.html
 app.get("/", function(req, res){
-  //res.clearCookie("username");
-  //res.clearCookie("password");
   res.sendFile(__dirname + "/pages/welcome_v1.html")
 });
 
 app.get("/messages_v1.html", function(req, res){
+  console.log(global_username)
   res.sendFile(__dirname + "/pages/messages_v1.html")
 });
 app.get("/newsfeed_v1.html", function(req, res){
+  console.log(global_username)
   res.sendFile(__dirname + "/pages/newsfeed_v1.html")
 });
 app.get("/calendar_v1.html", function(req, res){
+  console.log(global_username)
   res.sendFile(__dirname + "/pages/calendar_v1.html")
 });
 app.get("/webpage_v1.html", function(req, res){
+  console.log(global_username)
   res.sendFile(__dirname + "/pages/webpage_v1.html")
 });
 app.get("/app_selection_v1.html", function(req, res){
+  console.log(global_username)
   res.sendFile(__dirname + "/pages/app_selection_v1.html")
 });
 //welcome_v1.html -> signup_v1.html
@@ -110,10 +113,12 @@ app.get("/login", function(req, res){
         res.sendFile(__dirname + "/pages/login_v1.html")
       }
       else{ //cookie in db
+
         res.clearCookie("username");
-    	res.clearCookie("password");
+    	  res.clearCookie("password");
         res.cookie("username", req.query.username);
         res.cookie("password", req.query.password);
+        global_username = req.cookies.username
         console.log("Sucessfully logged in with cookies");
         res.sendFile(__dirname + "/pages/webpage_v1.html")
       }  
@@ -129,6 +134,7 @@ app.get("/login", function(req, res){
 //signup_v1.html -> userinput.html
 app.get("/createaccount", function(req, res){
   global_username = req.query.username;
+  console.log(global_username)
   req.query = {'username': req.query.username, 'password':req.query.password[0]}
   MongoClient.connect(url, function(err, client) {
     assert.equal(null, err);
@@ -153,7 +159,6 @@ app.get("/createaccount", function(req, res){
 app.get("/submit", function(req, res){
   MongoClient.connect(url, function(err, client) {
     assert.equal(null, err);
-    console.log("Connected correctly to server");
     const db = client.db(dbName);
     db.collection("authentication").findOne({username: req.query.username, password: req.query.password}, function(err, result) {
       if (err) throw err;
@@ -162,11 +167,11 @@ app.get("/submit", function(req, res){
         res.sendFile(__dirname + "/pages/login_v1.html")
       }
       else{
-        console.log(result);
         res.clearCookie("username");
         res.clearCookie("password");
         res.cookie("username", req.query.username);
         res.cookie("password", req.query.password);
+        global_username = req.query.username
         res.sendFile(__dirname + "/pages/webpage_v1.html")
 
       }
@@ -222,47 +227,44 @@ app.get("/slack", function(req, res) {
     });
 });
 
+app.get("/goToAppSelection", function(req, res){
+  res.sendFile(__dirname + "/pages/app_selection_v1.html")
+})
+
 app.get("/app_selection", function(req, res){
-  var user_preferences = req.query
-  for (var key in user_preferences){
-    if(user_preferences.hasOwnProperty(key)){
-      console.log(user_preferences[key])
-      if (typeof user_preferences[key] == 'string'){
-        user_preferences[key] = [user_preferences[key]]
-      }
-    } 
-  }
-  var obj = {"username": global_username, user_preferences}
-  MongoClient.connect(url, function(err, client) {
-  assert.equal(null, err);
-  console.log("Connected correctly to server");
-  const db = client.db(dbName);
-  insertUserDocuments(db, obj, function() {});
-  res.sendFile(__dirname + "/pages/app_selection_v1.html");
-});
-
-});
-
-app.get("/userinput", function(req, res){
-  var user_preferences = req.query
-  for (var key in user_preferences){
-    if(user_preferences.hasOwnProperty(key)){
-      console.log(user_preferences[key])
-      if (typeof user_preferences[key] == 'string'){
-        user_preferences[key] = [user_preferences[key]]
-      }
-    } 
-  }
-  var obj = {"username": global_username, user_preferences}
+  //if global_username in user_preferences ---update
+  //if global_username !in user_preferences --insert
   MongoClient.connect(url, function(err, client) {
     assert.equal(null, err);
-    console.log("Connected correctly to server");
     const db = client.db(dbName);
-    insertUserDocuments(db, obj, function() {});
-    res.sendFile(__dirname + "/pages/webpage_v1.html")
+    db.collection("user_preferences").findOne({username: global_username}, function(err, result) {
+      if (err) throw err;
+      var user_preferences = req.query
+        for (var key in user_preferences){
+          if(user_preferences.hasOwnProperty(key)){
+            if (typeof user_preferences[key] == 'string'){
+              user_preferences[key] = [user_preferences[key]]
+            }
+          } 
+        }
+        var obj = {"username": global_username, user_preferences}
+        assert.equal(null, err);
+        const db = client.db(dbName);
+      if (result == null){ //username doesnt exist
+          insertUserDocuments(db, obj, function() {});
+          res.sendFile(__dirname + "/pages/webpage_v1.html")
+      }
+      else{
+          db.collection("user_preferences").replaceOne({"username" : global_username}, obj);
+          res.sendFile(__dirname + "/pages/webpage_v1.html")
+      }
+      
+    });
   });
   
 });
+
+
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
