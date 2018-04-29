@@ -14,6 +14,7 @@ const assert = require('assert');
 var passport = require('passport');
 var Strategy = require('passport-twitter').Strategy;
 var session = require('express-session');
+var request = require('request')
 
 
 passport.use(new Strategy({
@@ -127,6 +128,9 @@ app.get("/accounts", function(req, res){
 })
 
 app.get("/messages", function(req, res){
+
+
+  
   var messages = {data:[{ platform: "<img src='https://png.icons8.com/cotton/2x/twitter.png' style='height:30px; width:30px'> <div hidden>Twitter</div>",
     sender_id: '2444364534',
     message: 'the quick brown fox jumps over the lazy diog',
@@ -319,6 +323,18 @@ app.get("/twittermessages", function(req, res){
 })
 
 app.get("/slackmessages", function(req, res) {
+
+
+  let get_sender_name = function(sender_id, request_url){
+    return new Promise(function(resolve, reject){
+      request.get(request_url, function(error, response, body){
+        var obj = JSON.parse(body)
+        resolve(obj.profile.real_name)
+      });
+    })
+  }
+
+
   var messages = {data:[]}
   var slackToken = 'xoxa-309091349812-354349657141-353983251444-c0e6ce86fca71c1219851f6d02626f67'
   var slackClient =  new Slack({
@@ -345,22 +361,54 @@ app.get("/slackmessages", function(req, res) {
         }).then(function(history) {
             //console.log(history["messages"]);
             var msgs = history["messages"];
+            msgPromises = [];
+            //console.log(msgs);
+            msgs.forEach(function(msg) {
+                var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
+                var sender_id = msg.user
+                var message = msg.text
+                var created_timestamp = convert_unix_time_stamp(msg.ts);
+                var request_url = 'https://slack.com/api/users.profile.get?token=' + slackToken + '&user=' + sender_id;
+
+                var msgPromise = get_sender_name(sender_id, request_url).then(function(sender_name) {
+                    messages.data.push({
+                        "platform": platform, 
+                        "sender_id": sender_name,
+                        "message": message, 
+                        "time_stamp": created_timestamp
+                    })
+                });
+                
+                msgPromises.push(msgPromise);
+                })
+            Promise.all(msgPromises).then(function(sender_name) {
+              console.log(messages.data)
+            });
+            });
+            
+            /*
             for(var i = 0; i < msgs.length; i++) {
                 var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
                 var sender_id = msgs[i].user
                 var message = msgs[i].text
-                console.log(msgs[i].ts)
                 var created_timestamp = convert_unix_time_stamp(msgs[i].ts);
-                messages.data.push({
-                  "platform": platform, 
-                  "sender_id": sender_id, 
-                  "message": message, 
-                  "time_stamp": created_timestamp
-                })
+                console.log(sender_id);
+                var msgPromise = slackClient.users.profile.get({
+                  token: slackToken, 
+                  users: sender_id
+                }).then(function(sender_name_data){
+                  var sender_name = sender_name_data.profile.real_name;
+                  //console.log(sender_name);
+                  messages.data.push({
+                    "platform": platform, 
+                    "sender_id": sender_name, 
+                    "message": message, 
+                    "time_stamp": created_timestamp
+                  })
+                });
 
-            }
-            console.log(messages)
-        });
+                msgPromises.push(msgPromise);
+            }*/
 
     });
 });

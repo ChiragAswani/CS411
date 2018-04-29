@@ -21,6 +21,7 @@
     "passport-twitter": "^1.0.4",
     "promise": "^8.0.1",
     "pug": "^2.0.3",
+    "request": "^2.85.0",
     "session": "^0.1.0",
     "slack": "^11.0.0",
     "twitter": "^1.7.1"
