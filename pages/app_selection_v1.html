@@ -106,23 +106,19 @@
 				<div class = "slack">
       				<h3> Slack: <br> </h3>
         			<input type="checkbox" name="slack" value="slack_messages"> Messages<br>
-        			<input type="checkbox" name="slack" value="slack_calendar"> Calendar<br>
+        			<button type="button" onclick="window.open('/authorizeSlack','_blank')">Authorize Slack</button>
         		</div>
         		<div class = "google">
         			<h3> Google: <br> </h3>
         			<input type="checkbox" name="google" value="google_calendar"> Calendar<br>
         			<input type="checkbox" name="google" value="google_newsfeed"> News Feed<br>
+        			<button type="button" onclick="window.open('/authorizeGoogle','_blank')">Authorize Google</button>
         		</div>
         		<div class = "twitter">
         			<h3> Twitter: <br> </h3>
 			        <input type="checkbox" name="twitter" value="twitter_messages"> Messages<br>
 			        <input type="checkbox" name="twitter" value="twitter_newsfeed"> News Feed<br> 
-        		</div>
-        		<div class = "facebook">
-        			<h3> Facebook: <br> </h3>
-			        <input type="checkbox" name="facebook" value="facebook_newsfeed"> News Feed<br>
-			        <input type="checkbox" name="facebook" value="facebook_messages"> Messages<br>
-			        <input type="checkbox" name="facebook" value="facebook_calendar"> Calendar<br>
+			        <button type="button" onclick="window.open('/authorizeTwitter','_blank')">Authorize Twitter</button>
         		</div>
         		<button class="submit"
         			type="submit" value="Submit"> 

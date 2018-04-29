@@ -7,6 +7,10 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<link href='https://fonts.googleapis.com/css?family=Alegreya SC' rel='stylesheet'>
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<style>
+.mySlides {display:none;}
+</style>
 	<style type = "text/css">
 		body { 
 			background-image:url(http://www.mediafire.com/convkey/5153/jd9wjwfldka8mzkzg.jpg);
@@ -41,12 +45,6 @@
 		  padding: 6px;
 		  border: none;
 		  font-size: 17px;
-		  color: black;
-		}
-		.navbar .search-container {
-		  float: left;
-		  margin-top: 10px;
-		  margin-right: 20px;
 		  color: black;
 		}
 		.sidenav {
@@ -108,17 +106,11 @@
 			</div>
 
 			<ul class="nav navbar-nav navbar-right" style = "color: white;">
-				<div class = "search-container">
-					<form action="/action_page.php">
-		      <input style = "background-color: #E5E7E9;" type="text" placeholder="Do Some Soul Searching" name="search">
-		      <button class = "search-button" style="background-color: black; border: none;" type="submit"><span class="	glyphicon glyphicon-search" style = "color: white;">
-	      	</span></button>
-		    </form>
-				</div>
+
 	      <li><a href="/goToAppSelection" style = "color: white;">
 	      	<span class="glyphicon gl´yphicon-user" style = "color: white;">
 	      	</span> Settings </a></li>
-	      <li><a href="#" style = "color: white;"><span class="glyphicon glyphicon-log-out"></span> Logout </a></li>
+	      <li><a href="/goToWelcomePage" style = "color: white;"><span class="glyphicon glyphicon-log-out"></span> Logout </a></li>
     	</ul>
 		</div>
 
@@ -143,11 +135,28 @@
 	</nav>
 
 	<div class="content-wrapper">
-		<div class="webpage_window">
-				<img src = "http://www.hanedanrpg.com/photos/hanedanrpg/4/15025.jpg" style = "height: 683px;
-			width: 1384px;">
-		</div>
+		<div class="w3-content w3-section" style="max-width:500px">
+  <img class="mySlides" src="http://www.mediafire.com/convkey/4402/xafpd2qzdbxw6i0zg.jpg" style="width:100%">
+  <img class="mySlides" src="http://www.mediafire.com/convkey/8b87/in84hzqvlxvpsm7zg.jpg" style="width:100%">
+  <img class="mySlides" src="http://www.mediafire.com/convkey/3111/2elxb2coj4gkyblzg.jpg" style="width:100%">
+  <img class="mySlides" src="http://www.mediafire.com/convkey/275d/g52u2cic4m5xtd4zg.jpg" style="width:100%">
+</div>
 	</div>
+<script>
+var myIndex = 0;
+carousel();
 
+function carousel() {
+    var i;
+    var x = document.getElementsByClassName("mySlides");
+    for (i = 0; i < x.length; i++) {
+       x[i].style.display = "none";  
+    }
+    myIndex++;
+    if (myIndex > x.length) {myIndex = 1}    
+    x[myIndex-1].style.display = "block";  
+    setTimeout(carousel, 2000); // Change image every 2 seconds
+}
+</script>
 	</body>
 </html>

@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href='https://fonts.googleapis.com/css?family=Alegreya SC' rel='stylesheet'>
+	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src='/middle.js'></script>
 		<style type = "text/css">
 			body { background-image:url(http://www.mediafire.com/convkey/5153/jd9wjwfldka8mzkzg.jpg);background-repeat:repeat-x; }
 			h1 {
@@ -101,21 +103,15 @@
         		<br>
         		<! Create the commands >
             	<input class = "username"
-            		type="text" placeholder="username" name="username">
+            		type="text" placeholder="username" name="username" required>
             	Create a password:
             	<br>
             	<! Create the commands >
             	<input class = "password"
-            		type="text" placeholder="password" name="password">
-            	Confirm password:
-            	<br> 
-            	<! Create the commands >
-            	<input class = "confirm"
-            		type="text" placeholder="password" name="password"
-            	>
+            		type="text" placeholder="password" name="password" required>
             	<! Create the commands >
             	<input class = "submit"
-            		type="submit" value="Sign Up">
+            		type="submit" value="Sign Up" onclick="check_duplicate_username()">
         	</form>
         </div>
     </body>

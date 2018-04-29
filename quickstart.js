@@ -11,6 +11,25 @@ var Twitter = require('twitter');
 var Slack = require('slack');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
+var passport = require('passport');
+var Strategy = require('passport-twitter').Strategy;
+var session = require('express-session');
+
+
+passport.use(new Strategy({
+    consumerKey: 'fSF2cv9DMbMcWjCJEkJ3IOn5R',
+    consumerSecret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
+    callbackURL: 'http://localhost:8000/authorizeTwitterReturn'
+}, function(token, tokenSecret, profile, callback) {
+    return callback(null, profile);
+}))
+passport.serializeUser(function(user, callback) {
+    callback(null, user);
+})
+
+passport.deserializeUser(function(obj, callback) {
+    callback(null, obj);
+})
  
 //Mongo Connections
 const url = 'mongodb://localhost:27017';
@@ -22,20 +41,11 @@ var global_username = '';
 //Connections
 var app = express();
 app.use(cookieParser());
+app.use(session({secret: 'whatever', resave: true, saveUninitialized: true}))
+app.use(passport.initialize())
+app.use(passport.session())
 /* API clients */
 
-// Use connect method to connect to the server
-var twitterClient = new Twitter({
-    consumer_key: 'fBrLFbR6x7yXPy53xPeXaspkL',
-    consumer_secret: 'yAXuk3oiAxhFoiTz5Cvui6FmEDnkZNC8dJJjsC06crEZUDiZWu',
-    access_token_key: '925822128066265089-adk5NKVJMQLhicZEcaKSlhdBDOfvwKR',
-    access_token_secret: 'qVHnhMvV8RVj5xOBdgrD4dgj6Z0fGotLdoxY24EOs28TY'
-});
-
-var slackToken = 'xoxp-309091349812-310072836630-354227586530-bad1c832fefcd03100e42e6a58d1b5e7'
-var slackClient =  new Slack({
-    access_token: slackToken,
-    scope: 'read'});
 
 // Use connect method to connect to the server
 
@@ -94,6 +104,42 @@ app.get("/app_selection_v1.html", function(req, res){
 app.get("/signup", function(req, res){
   res.sendFile(__dirname + "/pages/signup_v1.html")
 });
+app.get("/middle.js", function(req, res){
+  res.sendFile(__dirname + "/middle.js")
+})
+
+app.get("/accounts", function(req, res){
+  MongoClient.connect(url, function(err, client) {
+    accounts = []
+    const db = client.db(dbName);
+    db.collection("authentication").find({}, function(err, result){
+      var cursor = result
+      cursor.forEach(function(account){
+        accounts.push(account)
+        console.log(accounts)
+      }, function(){
+        res.send(accounts)
+      })
+      
+    })
+  })
+})
+
+app.get("/messages", function(req, res){
+  var messages = {data:[{ platform: "<img src='https://png.icons8.com/cotton/2x/twitter.png' style='height:30px; width:30px'> <div hidden>Twitter</div>",
+    recipient_id: '2444364534',
+    message: 'the quick brown fox jumps over the lazy diog',
+    time_stamp: '20:16:15' },
+  { platform: "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Slack</div>",
+    recipient_id: 'neilc234',
+    message: 'test',
+    time_stamp: '18:03:17' }]} 
+  messages = JSON.stringify(messages)
+  res.send(messages)
+})
+app.get("/goToWelcomePage", function(req, res){
+  res.sendFile(__dirname + '/pages/welcome_v1.html')
+})
 
 
 /**
@@ -181,24 +227,102 @@ app.get("/submit", function(req, res){
   
 })
 
-app.get("/twitter", function(req, res) {
-var params = {screen_name: 'nodejs'};
-twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
-    if (!error) {
-        tweets["events"].forEach(function(tweet) {
-            console.log("Tweet Object:");
-            console.log(tweet["message_create"]["message_data"]["text"]);
-        });
-    }
-    else {
-        console.log(error);
-    }
-});
-});
 
-app.get("/slack", function(req, res) {
+
+
+
+app.get("/goToAppSelection", function(req, res){
+  res.sendFile(__dirname + "/pages/app_selection_v1.html")
+})
+app.get("/authorizeGoogle", function(req, res){
+  res.sendFile(__dirname + "/pages/adsfadsfs.html")
+})
+
+app.get('/authorizeTwitter', passport.authenticate('twitter'))
+
+app.get('/authorizeTwitterReturn', function(req, res){
+  res.sendFile(__dirname + "/pages/app_selection_v1.html")
+})
+
+app.get('/authorizeSlack', function(req, res){
+  res.redirect('https://slack.com/oauth/authorize?client_id=309091349812.353983200660&scope=commands,channels:history,channels:read,channels:write,chat:write,users.profile:read,users.profile:write,users:read,users:read.email,users:write')
+})
+
+app.get('/authorizeSlackReturn', function(req, res){
+  res.sendFile(__dirname + "/pages/app_selection_v1.html")
+})
+
+function convert_unix_time_stamp(t)
+{
+var dt = new Date(t*1000);
+var hr = dt.getHours();
+var m = "0" + dt.getMinutes();
+var s = "0" + dt.getSeconds();
+return hr+ ':' + m.substr(-2) + ':' + s.substr(-2);  
+}
+
+app.get("/twittermessages", function(req, res){
+  // Use connect method to connect to the server
+  var twitterClient = new Twitter({
+      consumer_key: 'fSF2cv9DMbMcWjCJEkJ3IOn5R',
+      consumer_secret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
+      access_token_key: '618369151-SYSVzJsLeYN10oHIQlYonGpX1CzWW8IIGa55vfn5',
+      access_token_secret: '3M3Io513SpndXqOdPT69G8eVpLhZ47TktiukmIKGRqN3a'
+  });
+  var params = {screen_name: 'nodejs'};
+  let getmessages = new Promise(function(resolve, reject){
+    try{
+    var twitter_messages = {data:[]}
+    twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
+      tweets["events"].forEach(function(tweet) {
+          var platform = "<img src='https://png.icons8.com/cotton/2x/twitter.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
+          var recipient_id = tweet["message_create"].target.recipient_id;
+          var message = tweet["message_create"]["message_data"]["text"];
+          var created_timestamp = convert_unix_time_stamp(tweet.created_timestamp);
+          twitter_messages.data.push({
+            "platform": platform, 
+            "recipient_id": recipient_id, 
+            "message": message, 
+            "time_stamp": created_timestamp 
+          });   
+      });
+      resolve(twitter_messages)
+    });
+    } catch(e){
+      reject(e)
+    }
+  });
+
+  let get_recipiet_name = function(recipient_id){
+    return new Promise(function(resolve, reject){
+      var url = 'https://api.twitter.com/1.1/users/show.json?user_id=' + String(recipient_id)
+      twitterClient.get(url, function(error, response, body) {
+        var obj = JSON.parse(body.body)
+        resolve(obj.screen_name)
+      });
+    })
+  }
+
+
+  getmessages.then(function(messages){
+    messages = messages.data
+    for(message in messages){
+      get_recipiet_name(messages[message].recipient_id).then(function(recipiet_name){
+        messages[message]["recipient_id"] = recipiet_name
+        console.log(messages)
+      })
+    }
+    console.log(messages)
+  })
+})
+
+app.get("/slackmessages", function(req, res) {
+  var messages = {data:[]}
+  var slackToken = 'xoxa-309091349812-354349657141-353983251444-c0e6ce86fca71c1219851f6d02626f67'
+  var slackClient =  new Slack({
+    access_token: slackToken,
+    scope: 'read'});
     var channelName = "general";
-    // Get list of channels to grab specific channel id
     slackClient.channels.list({
         token: slackToken
     }).then(function(channelList) {
@@ -217,23 +341,32 @@ app.get("/slack", function(req, res) {
             token: slackToken,
             channel: channelId
         }).then(function(history) {
-            console.log(history["messages"]);
+            //console.log(history["messages"]);
             var msgs = history["messages"];
             for(var i = 0; i < msgs.length; i++) {
-                console.log(msgs[i]["text"]);
+                var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
+                var recipient_id = msgs[i].user
+                var message = msgs[i].text
+                var created_timestamp = convert_unix_time_stamp(msgs[i].ts);
+                messages.data.push({
+                  "platform": platform, 
+                  "recipient_id": recipient_id, 
+                  "message": message, 
+                  "time_stamp": created_timestamp
+                })
+
             }
+            console.log(messages)
         });
 
     });
 });
 
-app.get("/goToAppSelection", function(req, res){
-  res.sendFile(__dirname + "/pages/app_selection_v1.html")
-})
 
 app.get("/app_selection", function(req, res){
   //if global_username in user_preferences ---update
   //if global_username !in user_preferences --insert
+  console.log(res)
   MongoClient.connect(url, function(err, client) {
     assert.equal(null, err);
     const db = client.db(dbName);

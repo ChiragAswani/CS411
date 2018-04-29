@@ -7,6 +7,8 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<link href='https://fonts.googleapis.com/css?family=Alegreya SC' rel='stylesheet'>
+	<script type="text/javascript" src='/middle.js'></script>
+	<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
 	<style type = "text/css">
 		body { 
 			background-image:url(http://www.mediafire.com/convkey/5153/jd9wjwfldka8mzkzg.jpg);
@@ -71,14 +73,9 @@
 		h4.name {
 			font-weight: bold;
 		}
-		a{
-			color: black;
-			text-decoration: none;
-		}
-		a.unread {
+		p.unread {
 			font-weight: bolder;
 		}
-
 		nav.navbar {
 			background-color: black;
 		}
@@ -157,17 +154,10 @@
 			</div>
 
 			<ul class="nav navbar-nav navbar-right" style = "color: white;">
-				<div class = "search-container">
-					<form action="/action_page.php">
-		      <input style = "background-color: #E5E7E9;" type="text" placeholder="Do Some Soul Searching" name="search">
-		      <button class = "search-button" style="background-color: black; border: none;" type="submit"><span class="	glyphicon glyphicon-search" style = "color: white;">
-	      	</span></button>
-		    </form>
-				</div>
 	      <li><a href="/goToAppSelection" style = "color: white;">
 	      	<span class="glyphicon glyphicon-user" style = "color: white;">
 	      	</span> Settings </a></li>
-	      <li><a href="#" style = "color: white;"><span class="glyphicon glyphicon-log-out"></span> Logout </a></li>
+	      <li><a href="/goToWelcomePage" style = "color: white;"><span class="glyphicon glyphicon-log-out"></span> Logout </a></li>
     	</ul>
 		</div>
 
@@ -194,39 +184,31 @@
 	</nav>
 
 	<div class="content-wrapper">
-		<div class="messages">
-			<div class="ind_message">
-				<img src="slack-icon.png" alt="Avatar" style="width:100%;">
-				<h4 class = "name"> Jacob </h4>
-			  <a class = "unread" href = "chat_v1.html" class="unread" style = "color: black;
-			text-decoration: none;">Why am I always so tired?!</a>
-			  <span class="time-right">11:00</span>
-			</div>
-
-			<div class="ind_message darker">
-				<img src="square-twitter-256.png" alt="Avatar" class = "right" style="width:100%;">
-				<h4 class = "name"> Tyrone </h4>
-			  <a class = "unread" href = "chat_v1.html" style = "color: black;
-			text-decoration: none;">Not enough sleep, poor diet, dehydration, not enough exercise...</a>
-			  <span class="time-right">11:01</span>
-			</div>
-
-			<div class="ind_message">
-				<img src="slack-icon.png" alt="Avatar" style="width:100%;">
-				<h4 class = "name"> Chirag </h4>
-			  <a href = "chat_v1.html" style = "color: black;
-			text-decoration: none;">If only there was something I could DO about it!</a>
-			  <span class="time-right">11:02</span>
-			</div>
-
-			<div class="ind_message darker">
-				<img src="slack-icon.png" alt="Avatar" class = "right" style="width:100%;">
-				<h4 class = "name"> Natalya </h4>
-			  <a class = "unread" href = "chat_v1.html" style = "color: black;
-			text-decoration: none;">Go to bed earlier, eat healthier, go for a walk...?</a>
-			  <span class="time-right">11:03</span>
-			</div>
-		</div>
+		<div class="row">
+          <div class="col-lg-12">
+            <h1 class="page-header">Messages</h1>
+          </div>
+          <div class="col-lg-12">
+            <div class="panel-heading">
+              <table id="example" style="width:100%" class="display">
+                <thead>
+                  <tr>
+                    <th>Platform</th>
+                    <th>From</th>
+                    <th>Message</th>
+                    <th>Time Stamp</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <button type="button" onclick="displayData()" id="refreshbutton" class="btn btn-info btn-lg btn-block">Get Messaging Data</button>
+          </div>
+        </div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+      <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 	</div>
 
 	</body>
