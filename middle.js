@@ -44,9 +44,12 @@ $(document).ready(function() {
 		$.ajax(settings).done(function (response) {
 		  table = $('#example').DataTable({
 	        "ajax": "messages",
+	        "columnDefs": [
+    		{ "width": "2%", "targets": 0 }
+  			],
 	        "columns": [
 		            { "data": "platform" },
-		            { "data": "recipient_id" },
+		            { "data": "sender_id" },
 		            { "data": "message" },
 		            { "data": "time_stamp" }
 	        	]
