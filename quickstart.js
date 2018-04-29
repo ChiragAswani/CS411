@@ -138,6 +138,7 @@ app.get("/messages", function(req, res){
   messages = JSON.stringify(messages)
   res.send(messages)
 })
+
 app.get("/goToWelcomePage", function(req, res){
   res.clearCookie("username");
   res.clearCookie("password");
@@ -276,6 +277,7 @@ app.get("/twittermessages", function(req, res){
       access_token_key: '618369151-SYSVzJsLeYN10oHIQlYonGpX1CzWW8IIGa55vfn5',
       access_token_secret: '3M3Io513SpndXqOdPT69G8eVpLhZ47TktiukmIKGRqN3a'
   });
+
   let get_sender_name = function(sender_id){
     return new Promise(function(resolve, reject){
       var url = 'https://api.twitter.com/1.1/users/show.json?user_id=' + String(sender_id)
@@ -285,43 +287,35 @@ app.get("/twittermessages", function(req, res){
       });
     })
   }
+
   var params = {screen_name: 'nodejs'};
-  let getmessages = new Promise(function(resolve, reject){
-    try{
     var twitter_messages = {data:[]}
     twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
+      var tweetPromises = [];
       tweets["events"].forEach(function(tweet) {
           var platform = "<img src='https://png.icons8.com/cotton/2x/twitter.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
           var sender_id = tweet["message_create"].sender_id;
           var message = tweet["message_create"]["message_data"]["text"];
           var created_timestamp = convert_unix_time_stamp(parseInt(tweet.created_timestamp.substring(0, 10).toString()));
-          twitter_messages.data.push({
-            "platform": platform, 
-            "sender_id": sender_id, 
-            "message": message, 
-            "time_stamp": created_timestamp 
-          })   
+          console.log(message)
+          tweetPromise = get_sender_name(sender_id).then(function(sender_name) {
+              twitter_messages.data.push({
+                  "platform": platform, 
+                  "sender_id": sender_name, 
+                  "message": message, 
+                  "time_stamp": created_timestamp 
+              }); 
+          });
+          tweetPromises.push(tweetPromise);
       })
-      resolve(twitter_messages)
+      Promise.all(tweetPromises).then(function(sender_names) {
+          res.send(twitter_messages);
+      })
+      
     });
-    } catch(e){
-      reject(e)
-    }
-  });
-
-  
 
 
-  getmessages.then(function(messages){
-    messages = messages.data
-    for(message in messages){
-      get_sender_name(messages[message].sender_id).then(function(sender_name){
-        messages[message]["sender_id"] = sender_name
-        //console.log(messages)
-      })
-    }
-    console.log(messages)
-  })
+
 })
 
 app.get("/slackmessages", function(req, res) {
