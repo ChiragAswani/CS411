@@ -127,7 +127,7 @@ app.get("/accounts", function(req, res){
       var cursor = result
       cursor.forEach(function(account){
         accounts.push(account)
-        console.log(accounts)
+        //console.log(accounts)
       }, function(){
         res.send(accounts)
       })
@@ -137,15 +137,49 @@ app.get("/accounts", function(req, res){
 })
 
 app.get("/messages", function(req, res){
+    var slackToken, twitterToken, twitterSecret;
+    let getOAuthData = new Promise(function(resolve, reject) {
+        MongoClient.connect(url, function(err, client) {
+            const db = client.db(dbName);
+            console.log('Connection opened');
+            db.collection("oauth").findOne({username: global_username}, function(err, result) {
+                console.log(global_username);
+                current_data = result;
+                console.log('CURRENT_DATA', current_data);
+                twitterToken = current_data.twitter.twittertoken;
+                twitterSecret = current_data.twitter.twittersecret;
+                slackToken = current_data.slacktoken;
+                resolve(true);
+            });
+        });
+    });
 
+    getOAuthData.then(function(done) {
+        console.log('slackToken:', slackToken);
+        console.log('twitterToken:', twitterToken);
+        console.log('twitterSecret:', twitterSecret);
 
+        var my_messages = {data:[]}
+        slackMessages = getSlackMessages(slackToken);
+        twitterMessages = getTwitterMessages(twitterToken, twitterSecret);
 
-  var messages = {data:[ { platform: '<img src=\'http://www.icons101.com/icon_png/size_512/id_73479/Slack.png\' style=\'height:30px; width:30px\'> <div hidden>Twitter</div>',
-    sender_id: 'Chirag Aswani',
-    message: 'So come thru if you can, I got a lot of shit done yesterday, I just need help linking log ins ',
-    time_stamp: '4/29/2018 11:53:59' }]}
-  messages = JSON.stringify(messages)
-  res.send(messages)
+        Promise.all([slackMessages, twitterMessages]).then(function(clients) {
+            clients.forEach(function(client_messages) {
+                //console.log('client:', client_messages);
+                console.log('messages:', typeof my_messages.data);
+                my_messages.data = my_messages.data.concat(client_messages.data);
+
+            });
+
+            my_messages = JSON.stringify(my_messages)
+            res.send(my_messages)
+        });
+
+        /*var messages = {data:[ { platform: '<img src=\'http://www.icons101.com/icon_png/size_512/id_73479/Slack.png\' style=\'height:30px; width:30px\'> <div hidden>Twitter</div>',
+        sender_id: 'Chirag Aswani',
+        message: 'So come thru if you can, I got a lot of shit done yesterday, I just need help linking log ins ',
+        time_stamp: '4/29/2018 11:53:59' }]}*/
+    })
 })
 
 app.get("/goToWelcomePage", function(req, res){
@@ -306,64 +340,57 @@ var converted_time = (officialdate + ' ' +formattedTime)
 return converted_time
 }
 
+function getTwitterMessages(twitterToken, twitterSecret) {
+    let get_sender_name = function(sender_id){
+        return new Promise(function(resolve, reject){
+            var url = 'https://api.twitter.com/1.1/users/show.json?user_id=' + String(sender_id)
+            twitterClient.get(url, function(error, response, body) {
+                var obj = JSON.parse(body.body)
+                resolve(obj.screen_name)
+            });
+        })
+    }
 
-app.get("/twittermessages", function(req, res){
-  // Use connect method to connect to the server
-
-  console.log('Pinged');
-  let getTwitterMessages = function(){
     var twitterClient = new Twitter({
         consumer_key: 'fSF2cv9DMbMcWjCJEkJ3IOn5R',
         consumer_secret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
-        access_token_key: '925822128066265089-9x2Pb1Nf1TjUTSNzn0XzttZPcg9sYN0',
-        access_token_secret: 'vFkdu0kBJpcrOXW0PHdpy4MygGK65rIQhOEwUzFrjl0Hr'
+        access_token_key: twitterToken,//'925822128066265089-9x2Pb1Nf1TjUTSNzn0XzttZPcg9sYN0',
+        access_token_secret: twitterSecret//'vFkdu0kBJpcrOXW0PHdpy4MygGK65rIQhOEwUzFrjl0Hr'
     });
 
     console.log('Twitter client enabled');
-    let get_sender_name = function(sender_id){
-      return new Promise(function(resolve, reject){
-        var url = 'https://api.twitter.com/1.1/users/show.json?user_id=' + String(sender_id)
-        twitterClient.get(url, function(error, response, body) {
-          var obj = JSON.parse(body.body)
-          resolve(obj.screen_name)
-        });
-      })
-    }
 
     console.log('reached');
     var params = {screen_name: 'nodejs'};
-      var twitter_messages = {data:[]}
-      twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
-        var tweetPromises = [];
-        tweets["events"].forEach(function(tweet) {
-            var platform = "<img src='https://png.icons8.com/cotton/2x/twitter.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
-            var sender_id = tweet["message_create"].sender_id;
-            var message = tweet["message_create"]["message_data"]["text"];
-            var created_timestamp = convert_unix_time_stamp(parseInt(tweet.created_timestamp.substring(0, 10).toString()));
-            console.log(message)
-            tweetPromise = get_sender_name(sender_id).then(function(sender_name) {
-                twitter_messages.data.push({
-                    "platform": platform, 
-                    "sender_id": sender_name, 
-                    "message": message, 
-                    "time_stamp": created_timestamp 
-                }); 
+    var twitter_messages = {data:[]}
+    return new Promise(function(resolve, reject) {
+        twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
+            var tweetPromises = [];
+            tweets["events"].forEach(function(tweet) {
+                var platform = "<img src='https://png.icons8.com/cotton/2x/twitter.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
+                var sender_id = tweet["message_create"].sender_id;
+                var message = tweet["message_create"]["message_data"]["text"];
+                var created_timestamp = convert_unix_time_stamp(parseInt(tweet.created_timestamp.substring(0, 10).toString()));
+                tweetPromise = get_sender_name(sender_id).then(function(sender_name) {
+                    console.log(message);
+                    twitter_messages.data.push({
+                        "platform": platform, 
+                        "sender_id": sender_name, 
+                        "message": message, 
+                        "time_stamp": created_timestamp 
+                    }); 
+                });
+                tweetPromises.push(tweetPromise);
             });
-            tweetPromises.push(tweetPromise);
+
+            Promise.all(tweetPromises).then(function(sender_names) {
+                resolve(twitter_messages);
+            });
         })
-        Promise.all(tweetPromises).then(function(sender_names) {
-            res.send(twitter_messages);
-        })
-        
-      });
-  }
-  getTwitterMessages();
+    });
+}
 
-})
-
-app.get("/slackmessages", function(req, res) {
-
-
+function getSlackMessages(slackToken) {
   let get_sender_name = function(sender_id, request_url){
     return new Promise(function(resolve, reject){
       request.get(request_url, function(error, response, body){
@@ -373,85 +400,63 @@ app.get("/slackmessages", function(req, res) {
     })
   }
 
-
-  var messages = {data:[]}
-  var slackToken = 'xoxa-309091349812-354349657141-353983251444-c0e6ce86fca71c1219851f6d02626f67'
+  var slack_messages = {data:[]}
+  //var slackToken = 'xoxa-309091349812-354349657141-353983251444-c0e6ce86fca71c1219851f6d02626f67'
   var slackClient =  new Slack({
     access_token: slackToken,
     scope: 'read'});
+
     var channelName = "general";
-    slackClient.channels.list({
-        token: slackToken
-    }).then(function(channelList) {
-        var channelId = "";
-        for(var i = 0;i < channelList['channels'].length; i++) {
-            var channel = channelList['channels'][i];
-            if (channel['name'] == channelName) {
-                channelId = channel['id'];
-                break;
+
+    return new Promise(function(resolve, reject) {
+        slackClient.channels.list({
+            token: slackToken
+        }).then(function(channelList) {
+            var channelId = "";
+            for(var i = 0;i < channelList['channels'].length; i++) {
+                var channel = channelList['channels'][i];
+                if (channel['name'] == channelName) {
+                    channelId = channel['id'];
+                    break;
+                }
             }
-        }
 
-        console.log(channelId);
-        // Get history of specified channel messages
-        slackClient.channels.history({
-            token: slackToken,
-            channel: channelId
-        }).then(function(history) {
-            //console.log(history["messages"]);
-            var msgs = history["messages"];
-            msgPromises = [];
-            //console.log(msgs);
-            msgs.forEach(function(msg) {
-                var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
-                var sender_id = msg.user
-                var message = msg.text
-                var created_timestamp = convert_unix_time_stamp(msg.ts);
-                var request_url = 'https://slack.com/api/users.profile.get?token=' + slackToken + '&user=' + sender_id;
+            console.log(channelId);
+            // Get history of specified channel messages
+            slackClient.channels.history({
+                token: slackToken,
+                channel: channelId
+            }).then(function(history) {
+                //console.log(history["messages"]);
+                var msgs = history["messages"];
+                msgPromises = [];
+                //console.log(msgs);
+                msgs.forEach(function(msg) {
+                    var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
+                    var sender_id = msg.user
+                    var message = msg.text
+                    var created_timestamp = convert_unix_time_stamp(msg.ts);
+                    var request_url = 'https://slack.com/api/users.profile.get?token=' + slackToken + '&user=' + sender_id;
 
-                var msgPromise = get_sender_name(sender_id, request_url).then(function(sender_name) {
-                    messages.data.push({
-                        "platform": platform, 
-                        "sender_id": sender_name,
-                        "message": message, 
-                        "time_stamp": created_timestamp
-                    })
-                });
-                
-                msgPromises.push(msgPromise);
+                    var msgPromise = get_sender_name(sender_id, request_url).then(function(sender_name) {
+                        slack_messages.data.push({
+                            "platform": platform, 
+                            "sender_id": sender_name,
+                            "message": message, 
+                            "time_stamp": created_timestamp
+                        })
+                    });
+                    
+                    msgPromises.push(msgPromise);
                 })
-            Promise.all(msgPromises).then(function(sender_name) {
-              console.log(messages.data)
-            });
-            });
-            
-            /*
-            for(var i = 0; i < msgs.length; i++) {
-                var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
-                var sender_id = msgs[i].user
-                var message = msgs[i].text
-                var created_timestamp = convert_unix_time_stamp(msgs[i].ts);
-                console.log(sender_id);
-                var msgPromise = slackClient.users.profile.get({
-                  token: slackToken, 
-                  users: sender_id
-                }).then(function(sender_name_data){
-                  var sender_name = sender_name_data.profile.real_name;
-                  //console.log(sender_name);
-                  messages.data.push({
-                    "platform": platform, 
-                    "sender_id": sender_name, 
-                    "message": message, 
-                    "time_stamp": created_timestamp
-                  })
+
+                Promise.all(msgPromises).then(function(sender_name) {
+                    resolve(slack_messages);
                 });
-
-                msgPromises.push(msgPromise);
-            }*/
-
+            });
+        });
     });
-});
-
+}
 
 app.get("/app_selection", function(req, res){
   //if global_username in user_preferences ---update
@@ -497,7 +502,6 @@ app.get("/app_selection", function(req, res){
  * @param {function} callback The callback to call with the authorized client.
  */
 function authorize(credentials, callback, res, numEvents) {
-  console.log(credentials)
   var clientSecret = credentials.web.client_secret;
   var clientId = credentials.web.client_id;
   var redirectUrl = credentials.web.redirect_uris[0];
