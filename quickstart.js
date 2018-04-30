@@ -22,6 +22,8 @@ passport.use(new Strategy({
     consumerSecret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
     callbackURL: 'http://localhost:8000/authorizeTwitterReturn'
 }, function(token, tokenSecret, profile, callback) {
+    console.log('token', token);
+    console.log('tokenSecret', tokenSecret);
     return callback(null, profile);
 }))
 passport.serializeUser(function(user, callback) {
@@ -243,10 +245,6 @@ app.get("/submit", function(req, res){
   
 })
 
-
-
-
-
 app.get("/goToAppSelection", function(req, res){
   res.sendFile(__dirname + "/pages/app_selection_v1.html")
 })
@@ -256,10 +254,10 @@ app.get("/authorizeGoogle", function(req, res){
 
 app.get('/authorizeTwitter', passport.authenticate('twitter'))
 
-app.get('/authorizeTwitterReturn', function(req, res){
-
-  res.sendFile(__dirname + "/pages/app_selection_v1.html")
-})
+app.get('/authorizeTwitterReturn', 
+    passport.authenticate('twitter', {failureRedirect: '/'}), function(req, res) {
+        res.sendFile(__dirname + "/pages/app_selection_v1.html")
+});
 
 app.get('/authorizeSlack', function(req, res){
   res.redirect('https://slack.com/oauth/authorize?client_id=309091349812.353983200660&scope=commands,channels:history,channels:read,channels:write,chat:write,users.profile:read,users.profile:write,users:read,users:read.email,users:write')
@@ -305,14 +303,16 @@ return converted_time
 app.get("/twittermessages", function(req, res){
   // Use connect method to connect to the server
 
+  console.log('Pinged');
   let getTwitterMessages = function(){
     var twitterClient = new Twitter({
         consumer_key: 'fSF2cv9DMbMcWjCJEkJ3IOn5R',
         consumer_secret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
-        access_token_key: '618369151-SYSVzJsLeYN10oHIQlYonGpX1CzWW8IIGa55vfn5',
-        access_token_secret: '3M3Io513SpndXqOdPT69G8eVpLhZ47TktiukmIKGRqN3a'
+        access_token_key: '925822128066265089-9x2Pb1Nf1TjUTSNzn0XzttZPcg9sYN0',
+        access_token_secret: 'vFkdu0kBJpcrOXW0PHdpy4MygGK65rIQhOEwUzFrjl0Hr'
     });
 
+    console.log('Twitter client enabled');
     let get_sender_name = function(sender_id){
       return new Promise(function(resolve, reject){
         var url = 'https://api.twitter.com/1.1/users/show.json?user_id=' + String(sender_id)
@@ -323,6 +323,7 @@ app.get("/twittermessages", function(req, res){
       })
     }
 
+    console.log('reached');
     var params = {screen_name: 'nodejs'};
       var twitter_messages = {data:[]}
       twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
@@ -349,8 +350,7 @@ app.get("/twittermessages", function(req, res){
         
       });
   }
-
-
+  getTwitterMessages();
 
 })
 
