@@ -651,11 +651,11 @@ app.get('/authorizeSlack', function(req, res){
 app.get('/authorizeSlackReturn', function(req, res){
     var code = req.url.split('?')[1].split('&')[0].split('=')[1];
     
-    var request_url = 'https://slack.com/api/oauth.access?client_id=309091349812.353983200660&client_secret=ff6009d13d1e97ccafb901e03c9c9fee?&code='+code;
+    console.log('code', code);
+    var request_url = 'https://slack.com/api/oauth.access?client_id=309091349812.353983200660&client_secret=5fa2d4ebb4170d7c540b3215915e21d1&code='+code;
     request.get(request_url, function(error, response, body){
-        console.log(body);
         var obj = JSON.parse(body)
-        console.log(obj);
+        console.log(obj.access_token);
       });
   res.sendFile(__dirname + "/pages/app_selection_v1.html")
 })
