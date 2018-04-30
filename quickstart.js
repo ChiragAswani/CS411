@@ -649,6 +649,14 @@ app.get('/authorizeSlack', function(req, res){
 })
 
 app.get('/authorizeSlackReturn', function(req, res){
+    var code = req.url.split('?')[1].split('&')[0].split('=')[1];
+    
+    var request_url = 'https://slack.com/api/oauth.access?client_id=309091349812.353983200660&client_secret=ff6009d13d1e97ccafb901e03c9c9fee?&code='+code;
+    request.get(request_url, function(error, response, body){
+        console.log(body);
+        var obj = JSON.parse(body)
+        console.log(obj);
+      });
   res.sendFile(__dirname + "/pages/app_selection_v1.html")
 })
 
