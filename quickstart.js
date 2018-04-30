@@ -22,8 +22,15 @@ passport.use(new Strategy({
     consumerSecret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
     callbackURL: 'http://localhost:8000/authorizeTwitterReturn'
 }, function(token, tokenSecret, profile, callback) {
-    console.log('token', token);
-    console.log('tokenSecret', tokenSecret);
+    MongoClient.connect(url, function(err, client) {
+      const db = client.db(dbName);
+      db.collection("oauth").findOne({username: global_username}, function(err, result) {
+        current_data = result
+        current_data.twitter.twittertoken = token
+        current_data.twitter.twittersecret = tokenSecret
+        db.collection("oauth").replaceOne({"username" : global_username}, current_data);
+      });
+     })
     return callback(null, profile);
 }))
 passport.serializeUser(function(user, callback) {
