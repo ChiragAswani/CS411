@@ -421,7 +421,7 @@ function getTwitterMessages(twitterToken, twitterSecret) {
         twitterClient.get('direct_messages/events/list', params, function(error, tweets, response) {
             var tweetPromises = [];
             tweets["events"].forEach(function(tweet) {
-                var platform = "<img src='https://png.icons8.com/cotton/2x/twitter.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
+                var platform = "<img src='https://png.icons8.com/cotton/2x/twitter.png' style='height:30px; width:30px'> <div hidden>twitter</div>";
                 var sender_id = tweet["message_create"].sender_id;
                 var message = tweet["message_create"]["message_data"]["text"];
                 var created_timestamp = convert_unix_time_stamp(parseInt(tweet.created_timestamp.substring(0, 10).toString()));
@@ -448,8 +448,10 @@ function getSlackMessages(slackToken) {
   let get_sender_name = function(sender_id, request_url){
     return new Promise(function(resolve, reject){
       request.get(request_url, function(error, response, body){
-        var obj = JSON.parse(body)
-        resolve(obj.profile.real_name)
+  		console.log("REQUEST URL" + request_url)
+  		console.log(error)
+    	var obj = JSON.parse(body)
+    	resolve(obj.profile.real_name)
       });
     })
   }
@@ -485,12 +487,14 @@ function getSlackMessages(slackToken) {
                 var msgs = history["messages"];
                 msgPromises = [];
                 //console.log(msgs);
+                var counter = 0
                 msgs.forEach(function(msg) {
-                    var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Twitter</div>";
+                	if (counter < 5){
+                    var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Slack</div>";
                     var sender_id = msg.user
                     var message = msg.text
                     var created_timestamp = convert_unix_time_stamp(msg.ts);
-                    var request_url = 'https://slack.com/api/users.profile.get?token=' + slackToken + '&user=' + sender_id;
+                    var request_url = 'http://slack.com/api/users.profile.get?token=' + slackToken + '&user=' + sender_id;
 
                     var msgPromise = get_sender_name(sender_id, request_url).then(function(sender_name) {
                         slack_messages.data.push({
@@ -502,6 +506,11 @@ function getSlackMessages(slackToken) {
                     });
                     
                     msgPromises.push(msgPromise);
+                    counter += 1
+
+                	}
+                	setTimeout(myFunc, 700);
+                	counter = 0
                 })
 
                 Promise.all(msgPromises).then(function(sender_name) {
@@ -510,6 +519,10 @@ function getSlackMessages(slackToken) {
             });
         });
     });
+}
+
+function myFunc() {
+  console.log("Timer")
 }
 
 app.get("/app_selection", function(req, res){
