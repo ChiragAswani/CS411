@@ -1,0 +1,84 @@
+		body { 
+			background-image:url(http://www.mediafire.com/convkey/5153/jd9wjwfldka8mzkzg.jpg);
+			background-repeat:repeat-x; 
+			font-family: 'Alegreya SC';
+		}
+		div.container-fluid {
+			font-size: 17px;
+			font-family: 'Alegreya SC';
+		}
+		div.content-wrapper{
+			position: absolute;
+			top: 50px;
+			left: 151px;
+			width: 1384px;
+			height: 683px;
+			margin: auto;
+			font-family: 'Alegreya SC';
+			color: #B8860B;
+		}
+		div.newsfeed{
+			position: relative;
+			margin-right: 20px;
+			margin-left: 40px;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+		nav.navbar {
+			background-color: black;
+		}
+		a.navbar-brand {
+			font-size: 25px;
+			letter-spacing: 2px;
+		}
+		.navbar-brand input[type=text]{
+		  padding: 6px;
+		  border: none;
+		  font-size: 17px;
+		  color: black;
+		}
+		.navbar .search-container {
+		  float: left;
+		  margin-top: 10px;
+		  margin-right: 20px;
+		  color: black;
+		}
+		.sidenav {
+	    height: 93.5%;
+	    width: 151px;
+	    position: fixed;
+	    bottom: 0;
+	    left: 0;
+	    background-color: black;
+	    overflow-x: hidden;
+	    padding-top: 20px;
+	    font-family: 'Alegreya SC';
+		}
+		.sidenav a {
+		  padding: 6px 8px 6px 16px;
+		  font-size: 20px;
+		  color: white; 
+		  display: block;
+		}
+		.sidenav a:hover:not(.active) {
+		  color: #FFD700;
+		  text-decoration: none;
+		  background-color: #273746;
+		}
+		.sidenav a.active{
+			list-style-type: none;
+			color: white;
+		  text-decoration: none;
+		  background-color: #273746;
+		}
+		.glyphicon {
+			font-size: 15px;
+			letter-spacing: 5px;
+		}
+		li.menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+		}

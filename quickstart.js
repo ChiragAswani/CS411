@@ -92,23 +92,78 @@ app.get("/", function(req, res){
 });
 
 app.get("/messages_v1.html", function(req, res){
-  console.log(global_username)
+  global_username = req.cookies.username
   res.sendFile(__dirname + "/pages/messages_v1.html")
 });
 app.get("/newsfeed_v1.html", function(req, res){
-  console.log(global_username)
-  res.sendFile(__dirname + "/pages/newsfeed_v1.html")
+  global_username = req.cookies.username
+
+  let getTwitterAuth = new Promise(function(resolve, reject){
+    MongoClient.connect(url, function(err, client) {
+      const db = client.db(dbName);
+      db.collection("oauth").findOne({username: global_username}, function(err, result) {
+        resolve(result.twitter)
+      });
+    })
+  })
+  let getTwitterFeed = function(twitterauth){
+    var twitterClient = new Twitter({
+        consumer_key: 'fSF2cv9DMbMcWjCJEkJ3IOn5R',
+        consumer_secret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
+        access_token_key: twitterauth.twittertoken,
+        access_token_secret: twitterauth.twittersecret
+    });
+    return new Promise(function(resolve, reject){
+      twitterClient.get('https://api.twitter.com/1.1/statuses/home_timeline.json', function(error, response, body) {
+        var obj = JSON.parse(body.body)
+        resolve(obj)
+      });
+    })
+  }
+  let parseTwitterNewsFeedData = function(twitterNewsFeedData){
+    var parsedData = {data:[]}
+    return new Promise(function(resolve, reject){
+      for (data in twitterNewsFeedData){
+        parsedData.data.push({
+          "profile_image": twitterNewsFeedData[data].user.profile_image_url,
+          "screen_name": twitterNewsFeedData[data].user.screen_name,
+          "description": (twitterNewsFeedData[data].text.split('https')[0]),
+          "retweet_count": twitterNewsFeedData[data].retweet_count,
+          "favorite_count": twitterNewsFeedData[data].favorite_count,
+          "time_created": twitterNewsFeedData[data].created_at,
+        })
+      }
+      resolve(parsedData)
+    })
+  }
+
+  
+  getTwitterAuth.then(function(twitterauth){
+    getTwitterFeed(twitterauth).then(function(twitterNewsFeedData){
+      parseTwitterNewsFeedData(twitterNewsFeedData).then(function(parsedTwitterFeed){
+        console.log(parsedTwitterFeed)
+
+        res.render(__dirname + "/pages/newsfeed_v1.pug", {twitterFeed: parsedTwitterFeed.data})
+
+      })
+    })
+  })
+  
+  
+
+  
 });
+
+
 app.get("/calendar_v1.html", function(req, res){
-  console.log(global_username)
+  global_username = req.cookies.username
   res.sendFile(__dirname + "/pages/calendar_v1.html")
 });
 app.get("/webpage_v1.html", function(req, res){
-  console.log(global_username)
-  res.sendFile(__dirname + "/pages/webpage_v1.html")
+  global_username = req.cookies.username
+    res.sendFile(__dirname + "/pages/webpage_v1.html") 
 });
 app.get("/app_selection_v1.html", function(req, res){
-  console.log(global_username)
   res.sendFile(__dirname + "/pages/app_selection_v1.html")
 });
 //welcome_v1.html -> signup_v1.html
@@ -206,11 +261,6 @@ app.get("/login", function(req, res){
         res.sendFile(__dirname + "/pages/login_v1.html")
       }
       else{ //cookie in db
-
-        res.clearCookie("username");
-    	  res.clearCookie("password");
-        res.cookie("username", req.query.username);
-        res.cookie("password", req.query.password);
         global_username = req.cookies.username
         console.log("Sucessfully logged in with cookies");
         res.sendFile(__dirname + "/pages/webpage_v1.html")
@@ -287,7 +337,7 @@ app.get("/submit", function(req, res){
 })
 
 app.get("/goToAppSelection", function(req, res){
-  res.sendFile(__dirname + "/pages/app_selection_v1.html")
+    res.sendFile(__dirname + "/pages/app_selection_v1.html")
 })
 app.get("/authorizeGoogle", function(req, res){
   res.sendFile(__dirname + "/pages/adsfadsfs.html")
@@ -297,11 +347,13 @@ app.get('/authorizeTwitter', passport.authenticate('twitter'))
 
 app.get('/authorizeTwitterReturn', 
     passport.authenticate('twitter', {failureRedirect: '/'}), function(req, res) {
-        res.sendFile(__dirname + "/pages/app_selection_v1.html")
+        //res.sendFile(__dirname + "/pages/app_selection_v1.html")
+        //slackredirect
+        res.redirect('https://slack.com/oauth/authorize?client_id=309091349812.353983200660&scope=commands,channels:history,channels:read,channels:write,chat:write,users.profile:read,users.profile:write,users:read,users:read.email,users:write')
 });
 
 app.get('/authorizeSlack', function(req, res){
-  res.redirect('https://slack.com/oauth/authorize?client_id=309091349812.353983200660&scope=commands,channels:history,channels:read,channels:write,chat:write,users.profile:read,users.profile:write,users:read,users:read.email,users:write')
+  //res.redirect('https://slack.com/oauth/authorize?client_id=309091349812.353983200660&scope=commands,channels:history,channels:read,channels:write,chat:write,users.profile:read,users.profile:write,users:read,users:read.email,users:write')
 })
 
 app.get('/authorizeSlackReturn', function(req, res){
@@ -315,17 +367,19 @@ app.get('/authorizeSlackReturn', function(req, res){
       });
   })
   get_slack_access_token.then(function(access_token){
+
      MongoClient.connect(url, function(err, client) {
       const db = client.db(dbName);
       db.collection("oauth").findOne({username: global_username}, function(err, result) {
         current_data = result
         current_data.slacktoken = access_token
         db.collection("oauth").replaceOne({"username" : global_username}, current_data);
+
       });
      })
   })
       
-  res.sendFile(__dirname + "/pages/app_selection_v1.html")
+  res.sendFile(__dirname + "/pages/webpage_v1.html")
 })
 
 function convert_unix_time_stamp(t)
