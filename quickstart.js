@@ -509,7 +509,7 @@ function getSlackMessages(slackToken) {
                     counter += 1
 
                 	}
-                	setTimeout(myFunc, 700);
+                	setTimeout(myFunc, 1000);
                 	counter = 0
                 })
 
