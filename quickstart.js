@@ -15,6 +15,8 @@ var passport = require('passport');
 var Strategy = require('passport-twitter').Strategy;
 var session = require('express-session');
 var request = require('request')
+var oauthTokens = JSON.parse(fs.readFileSync('oauthTokens.json', 'utf8'))
+
 
 //App Connections
 var app = express();
@@ -217,7 +219,8 @@ app.get('/authorizeTwitter', passport.authenticate('twitter'))
 //Sends to Slack Authentication
 app.get('/authorizeTwitterReturn', 
     passport.authenticate('twitter', {failureRedirect: '/'}), function(req, res) {
-        res.redirect('https://slack.com/oauth/authorize?client_id=309091349812.353983200660&scope=commands,channels:history,channels:read,channels:write,chat:write,users.profile:read,users.profile:write,users:read,users:read.email,users:write')
+        var client_id = oauthTokens.slack
+        res.redirect('https://slack.com/oauth/authorize?client_id=' + client_id + '&scope=commands,channels:history,channels:read,channels:write,chat:write,users.profile:read,users.profile:write,users:read,users:read.email,users:write')
 });
 
 //Slack CallBack
@@ -292,7 +295,8 @@ let storeSlackOAuth = function(global_username, access_token){
 let get_slack_access_token = function(req){
   return new Promise(function(resolve, reject){
     var code = req.url.split('?')[1].split('&')[0].split('=')[1];
-      var request_url = 'https://slack.com/api/oauth.access?client_id=309091349812.353983200660&client_secret=5fa2d4ebb4170d7c540b3215915e21d1&code='+code;
+      var client_id = oauthTokens.slack
+      var request_url = 'https://slack.com/api/oauth.access?client_id=' + client_id + '&client_secret=5fa2d4ebb4170d7c540b3215915e21d1&code='+code;
       request.get(request_url, function(error, response, body){
         var obj = JSON.parse(body)
         slack_access_token = obj.access_token
@@ -324,10 +328,10 @@ let getTwitterMessages = function(twitterToken, twitterSecret) {
     }
 
     var twitterClient = new Twitter({
-        consumer_key: 'fSF2cv9DMbMcWjCJEkJ3IOn5R',
-        consumer_secret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
-        access_token_key: twitterToken,//'925822128066265089-9x2Pb1Nf1TjUTSNzn0XzttZPcg9sYN0',
-        access_token_secret: twitterSecret//'vFkdu0kBJpcrOXW0PHdpy4MygGK65rIQhOEwUzFrjl0Hr'
+        consumer_key: oauthTokens.twitter.consumerKey,
+        consumer_secret: oauthTokens.twitter.consumerSecret,
+        access_token_key: twitterToken,
+        access_token_secret: twitterSecret
     });
 
     console.log('Twitter client enabled');
