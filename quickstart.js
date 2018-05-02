@@ -93,6 +93,20 @@ app.get("/goToAppSelection", function(req, res){
     res.sendFile(__dirname + "/pages/app_selection_v1.html")
 });
 
+app.get("/search", function(req, res){
+	global_username = req.cookies.username
+	var searchquery = (req.query.topic)
+	getTwitterAuth(global_username).then(function(twitterauth){
+		getTwitterSearch(twitterauth, searchquery).then(function(twitterSearchData){
+			parseTwitterSearchData(twitterSearchData).then(function(parsedTwitterSearchData){
+				console.log(parsedTwitterSearchData)
+        		res.render(__dirname + "/pages/newsfeed_v1.pug", {twitterFeed: parsedTwitterSearchData.data})
+      		})
+
+		})
+	})
+});
+
 //Looks up cookie (username='',password='') in mongodb
 //Valid Cookie: update cookie, go to webpage_v1.html
 //Invalid Cookie: go to login_v1.html
@@ -455,6 +469,22 @@ let getTwitterFeed = function(twitterauth){
 	})
 }
 
+let getTwitterSearch = function(twitterauth, searchQuery){
+	var twitterClient = new Twitter({
+	    consumer_key: 'fSF2cv9DMbMcWjCJEkJ3IOn5R',
+	    consumer_secret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
+	    access_token_key: twitterauth.twittertoken,
+	    access_token_secret: twitterauth.twittersecret
+	});
+	return new Promise(function(resolve, reject){
+	  var url = 'https://api.twitter.com/1.1/search/tweets.json?q=' + searchQuery
+	  twitterClient.get(url, function(error, response, body) {
+	    var obj = JSON.parse(body.body)
+	    resolve(obj)
+	  });
+	})
+}
+
 let parseTwitterNewsFeedData = function(twitterNewsFeedData){
 	var parsedData = {data:[]}
 	return new Promise(function(resolve, reject){
@@ -471,7 +501,20 @@ let parseTwitterNewsFeedData = function(twitterNewsFeedData){
 	  resolve(parsedData)
 	})
 } 
-
+let parseTwitterSearchData = function(twitterSearchData){
+	var parsedData = {data:[]}
+	return new Promise(function(resolve, reject){
+	  for (data in twitterSearchData.statuses){
+	    parsedData.data.push({ 
+	      "screen_name": twitterSearchData.statuses[data].user.screen_name,
+	      "description": twitterSearchData.statuses[data].text,
+	      "retweet_count": twitterSearchData.statuses[data].retweet_count,
+	      "time_created": twitterSearchData.statuses[data].created_at,
+	    })
+	  }
+	  resolve(parsedData)
+	})
+}
 let insertAuthDocuments = function(db, data, callback) {
   const collection = db.collection('authentication');
   collection.insertMany([data], function(err, result) {

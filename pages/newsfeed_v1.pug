@@ -131,12 +131,16 @@ html.gr__blackrockdigital_github_io(lang='en')
     .content-wrapper
         .row
           .col-lg-12
-            .panel.panel-default
-              .panel-body
-               each row in twitterFeed
-                h2=row.screen_name
-                h4=row.description
-                h5="Retweet Count: " + row.retweet_count
-                h6=row.time_created
+            
+            form(action='/search')
+              input(type='text', placeholder='Enter a new topic', name='topic', size='35')
+              button(type='submit', method="get") Search
+              .panel.panel-default
+                .panel-body
+                 each row in twitterFeed
+                  h2=row.screen_name
+                  h4=row.description
+                  h5="Retweet Count: " + row.retweet_count
+                  h6=row.time_created
                 
 
