@@ -1,2 +1,1 @@
-As a logged in user with my accounts connected, I want to see an integrated or segregated news feed.
-As a logged in user with my accounts connected, I want to see and reply to recent messages and see notifications of new messages 
+As a logged in user, I was to be able view all of my messages into one platform and be able to send messages as well. Essentially, it should be a compilation of all data into one list and have the ability to sort by messages, time stamp, name, and platform. 
