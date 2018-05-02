@@ -1,0 +1,18 @@
+authentication collection: store username and password of user
+{
+  "_id": ObjectId(""),
+  "username": "",
+  "password": ""
+}
+
+oauth collection: store ouath data of user
+{
+  "_id": ObjectId(""),
+  "username": "",
+  "slacktoken": "",
+  "twitter": {
+    "twittertoken": "",
+    "twittersecret": ""
+  },
+  "googletoken": ""
+}
