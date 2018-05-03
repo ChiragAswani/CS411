@@ -238,9 +238,9 @@ app.get("/messages", function(req, res){
 }
 })
 
-let getEventBrite = function(location) {
+let getEventBrite = function(latitude, longitude) {
     return new Promise(function(resolve, reject) {
-        var request_url = 'https://www.eventbriteapi.com/v3/events/search/?sort_by=best&token=' + oauthTokens.eventbrite.anonymous_oauth_token + '&location.address=' + location;
+        var request_url = 'https://www.eventbriteapi.com/v3/events/search/?sort_by=best&token=' + oauthTokens.eventbrite.anonymous_oauth_token + '&location.latitude=' + latitude + '&location.longitude' + longitude;
         var events = [];
         request.get(request_url, function(error, response, body){
             var obj = JSON.parse(body);
