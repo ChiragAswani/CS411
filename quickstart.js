@@ -101,7 +101,6 @@ app.get("/search", function(req, res){
 	getTwitterAuth(global_username).then(function(twitterauth){
 		getTwitterSearch(twitterauth, searchquery).then(function(twitterSearchData){
 			parseTwitterSearchData(twitterSearchData).then(function(parsedTwitterSearchData){
-				console.log(parsedTwitterSearchData)
         		res.render(__dirname + "/pages/newsfeed_v1.pug", {twitterFeed: parsedTwitterSearchData.data})
       		})
 
@@ -184,6 +183,20 @@ app.get("/accounts", function(req, res){
 //Returns all of the messages in the db on localhost:8000/messages
 //Why? To use DataTables on the front end
 app.get("/messages", function(req, res){
+    if (req.query.q != undefined){
+      slackchannel = req.query.q
+      if (slackchannel.includes("#")){
+        slackchannel = slackchannel.substring(1,slackchannel.length-1)
+      }
+      
+    }
+
+      
+    
+    
+
+    
+
     var slackToken, twitterToken, twitterSecret;
     let getSlackOAuthData = new Promise(function(resolve, reject) {
         MongoClient.connect(url, function(err, client) {
@@ -199,7 +212,7 @@ app.get("/messages", function(req, res){
     });
     getSlackOAuthData.then(function(done) {
         var my_messages = {data:[]}
-        slackMessages = getSlackMessages(slackToken);
+        slackMessages = getSlackMessages(slackToken, slackchannel);
         twitterMessages = getTwitterMessages(twitterToken, twitterSecret);
         Promise.all([slackMessages, twitterMessages]).then(function(clients) {
             clients.forEach(function(client_messages) {
@@ -261,6 +274,8 @@ passport.serializeUser(function(user, callback) {
 passport.deserializeUser(function(obj, callback) {
     callback(null, obj);
 })
+
+//Functions
 
 let getAccounts = function(accounts){
   	return new Promise(function(resolve, reject){
@@ -334,9 +349,6 @@ let getTwitterMessages = function(twitterToken, twitterSecret) {
         access_token_secret: twitterSecret
     });
 
-    console.log('Twitter client enabled');
-
-    console.log('reached');
     var params = {screen_name: 'nodejs'};
     var twitter_messages = {data:[]}
     return new Promise(function(resolve, reject) {
@@ -348,7 +360,6 @@ let getTwitterMessages = function(twitterToken, twitterSecret) {
                 var message = tweet["message_create"]["message_data"]["text"];
                 var created_timestamp = convert_unix_time_stamp(parseInt(tweet.created_timestamp.substring(0, 10).toString()));
                 tweetPromise = get_sender_name(sender_id).then(function(sender_name) {
-                    console.log(message);
                     twitter_messages.data.push({
                         "platform": platform, 
                         "sender_id": sender_name, 
@@ -366,26 +377,20 @@ let getTwitterMessages = function(twitterToken, twitterSecret) {
     });
 }
 
-let getSlackMessages = function(slackToken) {
-  let get_sender_name = function(sender_id, request_url){
+let getSlackSenderName = function(sender_id, request_url){
     return new Promise(function(resolve, reject){
       request.get(request_url, function(error, response, body){
-  		console.log("REQUEST URL" + request_url)
-  		console.log(error)
-    	var obj = JSON.parse(body)
-    	resolve(obj.profile.real_name)
+      var obj = JSON.parse(body)
+      resolve(obj.profile.real_name)
       });
     })
-  }
+}
 
+let getSlackMessages = function(slackToken, channelName) {
   var slack_messages = {data:[]}
-  //var slackToken = 'xoxa-309091349812-354349657141-353983251444-c0e6ce86fca71c1219851f6d02626f67'
   var slackClient =  new Slack({
     access_token: slackToken,
     scope: 'read'});
-
-    var channelName = "general";
-
     return new Promise(function(resolve, reject) {
         slackClient.channels.list({
             token: slackToken
@@ -398,27 +403,22 @@ let getSlackMessages = function(slackToken) {
                     break;
                 }
             }
-
-            console.log(channelId);
-            // Get history of specified channel messages
             slackClient.channels.history({
                 token: slackToken,
                 channel: channelId
             }).then(function(history) {
-                //console.log(history["messages"]);
                 var msgs = history["messages"];
                 msgPromises = [];
-                //console.log(msgs);
                 var counter = 0
                 msgs.forEach(function(msg) {
-                	if (counter < 5){
+                	if (counter < 9){
                     var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Slack</div>";
                     var sender_id = msg.user
                     var message = msg.text
                     var created_timestamp = convert_unix_time_stamp(msg.ts);
                     var request_url = 'http://slack.com/api/users.profile.get?token=' + slackToken + '&user=' + sender_id;
 
-                    var msgPromise = get_sender_name(sender_id, request_url).then(function(sender_name) {
+                    var msgPromise = getSlackSenderName(sender_id, request_url).then(function(sender_name) {
                         slack_messages.data.push({
                             "platform": platform, 
                             "sender_id": sender_name,
@@ -426,10 +426,8 @@ let getSlackMessages = function(slackToken) {
                             "time_stamp": created_timestamp
                         })
                     });
-                    
                     msgPromises.push(msgPromise);
                     counter += 1
-
                 	}
                 	setTimeout(functionTimer, 1000);
                 	counter = 0
@@ -444,7 +442,6 @@ let getSlackMessages = function(slackToken) {
 }
 
 let functionTimer = function() {
-  	console.log("Timer Running")
 }
 
 let getTwitterAuth = function(global_username){

@@ -27,19 +27,23 @@ $(document).ready(function() {
 });
 }
 
+
 function displayData() {
+	var slackchannel = document.getElementById("slackchannel").value
+	console.log(slackchannel)
 	var refreshbutton = document.getElementById("refreshbutton");
 	refreshbutton.style.display = "none";
-var settings = {
-  "async": true,
-  "crossDomain": true,
-  "url": "http://localhost:8000/messages",
-  "method": "GET",
-  "headers": {
-    "Cache-Control": "no-cache",
-    "Postman-Token": "ac4ee8b6-6377-4fd9-aa6b-711cb56cf693"
-  }
-}
+	document.getElementById("slackchannel").style.display = "none";
+	var settings = {
+	  "async": true,
+	  "crossDomain": true,
+	  "url": "http://localhost:8000/messages?q=" + slackchannel,
+	  "method": "GET",
+	  "headers": {
+	    "Cache-Control": "no-cache",
+	    "Postman-Token": "ac4ee8b6-6377-4fd9-aa6b-711cb56cf693"
+	  }
+	}
 $(document).ready(function() {
 		$.ajax(settings).done(function (response) {
 		  table = $('#example').DataTable({
