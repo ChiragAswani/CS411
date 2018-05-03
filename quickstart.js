@@ -454,7 +454,7 @@ let getSlackMessages = function(slackToken, channelName) {
                             "time_stamp": created_timestamp
                         })
                     }).catch(function() {
-            			console.log('Missed Message with Sender ID:' + sender_id)
+            			console.log('Still Running')
         			});
                     msgPromises.push(msgPromise);
                     counter += 1
