@@ -189,7 +189,6 @@ app.get("/messages", function(req, res){
         slackchannel = slackchannel.substring(1,slackchannel.length-1)
       }
       
-    }
     var slackToken, twitterToken, twitterSecret;
     let getSlackOAuthData = new Promise(function(resolve, reject) {
         MongoClient.connect(url, function(err, client) {
@@ -212,11 +211,30 @@ app.get("/messages", function(req, res){
                 my_messages.data = my_messages.data.concat(client_messages.data);
             });
             my_messages = JSON.stringify(my_messages)
+            //res.sendFile(__dirname + "/pages/webpage_v1.html")
             res.send(my_messages)
         }).catch(function() {
-          res.sendFile(__dirname + "/pages/webpage_v1.html")
+            console.log('Catch slack data')
+            error_message =  {
+                "data": [{
+                    "platform":"facebook",
+                    "sender_id":"Chirag Aswani",
+                    "message":"<@U944XFFAB> uploaded a file: ",
+                    "time_stamp":"5/1/2018 18:45:55"}]
+            }
+            /*{
+                "data": [{
+                "platform": "error",
+                "sender_id": "error",
+                "message": "Incorrect slack channel",
+                "time_stamp": "error"
+                }]
+            }*/
+            error_message = JSON.stringify(error_message)
+            res.send(error_message)
         });
     })
+}
 })
 
 //Using passport to Authorize Twitter
