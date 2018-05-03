@@ -7,6 +7,7 @@ Socialite is a platform to view your messages, calendar, and newsfeed from popul
 ## Notes
 - We were unable to use Facebook Messages and Facebook News Feed API due to Facebook's recent privacy scandal. They were not recieving any requests for new applications
 - We were unable to use Google+ Hangouts API as it is no longer supported: https://developers.google.com/+/hangouts/
+- Due to these restrictions we ended up using a geolocation for our eventbrite to get event data around the area. This public data gives value to our business proposition as users can see all important information into one page
 
 ## Teammates
 Chirag Aswani, Jacob Levy, Tyrone Hou, Natalya Shelchkova

@@ -1,4 +1,5 @@
 Cookies: We store username and password as cookies
+Cookies: We store geolocation as cookies
 Database Storage: username and password in (authentication collection)
 Database Storage: username, twitter oAuth, slack oAuth, google oAuth (oauth collection)
 

@@ -58,7 +58,20 @@ app.get("/newsfeed_v1.html", function(req, res){
 //Goes to calendar_v1.html
 app.get("/calendar_v1.html", function(req, res){
   global_username = req.cookies.username
-  res.sendFile(__dirname + "/pages/calendar_v1.html")
+  var latitude = req.cookies.latitude
+  var longitude = req.cookies.longitude
+  if (latitude == undefined || longitude == undefined){
+    var eventBriteData = [ { name: 'Failed to Get Your Geolocation',
+    start_date: 'Please Logout And Allow Location',
+    end_date: 'https://support.google.com/chrome/answer/142065?hl=en' }]
+    res.render(__dirname + "/pages/calendar_v1.pug", {eventBriteData: eventBriteData})
+  }
+  else{
+    getEventBrite(latitude, longitude).then(function(eventBriteData){
+      console.log(eventBriteData)
+      res.render(__dirname + "/pages/calendar_v1.pug", {eventBriteData: eventBriteData})
+    })
+  }
 });
 
 //Goes to webpage_v1.html
@@ -218,44 +231,17 @@ app.get("/messages", function(req, res){
             console.log('Catch slack data')
             error_message =  {
                 "data": [{
-                    "platform":"error",
-                    "sender_id":"error",
-                    "message":"error",
-                    "time_stamp":"error"}]
+                    "platform":"Error:",
+                    "sender_id":"Incorrect Slack Channel!",
+                    "message":"Please Try Another",
+                    "time_stamp":""}]
             }
-            /*{
-                "data": [{
-                "platform": "error",
-                "sender_id": "error",
-                "message": "Incorrect slack channel",
-                "time_stamp": "error"
-                }]
-            }*/
             error_message = JSON.stringify(error_message)
             res.send(error_message)
         });
     })
 }
 })
-
-let getEventBrite = function(latitude, longitude) {
-    return new Promise(function(resolve, reject) {
-        var request_url = 'https://www.eventbriteapi.com/v3/events/search/?sort_by=best&token=' + oauthTokens.eventbrite.anonymous_oauth_token + '&location.latitude=' + latitude + '&location.longitude' + longitude;
-        var events = [];
-        request.get(request_url, function(error, response, body){
-            var obj = JSON.parse(body);
-            var raw_events = obj["events"]; 
-            raw_events.forEach(function(raw_event) {
-                events.push({
-                    "name": raw_event.name.text,
-                    "start_date": raw_event.start.utc,
-                    "end_date": raw_event.end.utc
-                });
-            })
-            resolve(events);
-        })
-    })
-}
 
 //Using passport to Authorize Twitter
 //Is called when user clicks "Authorize All"
@@ -265,7 +251,7 @@ app.get('/authorizeTwitter', passport.authenticate('twitter'))
 //Sends to Slack Authentication
 app.get('/authorizeTwitterReturn', 
     passport.authenticate('twitter', {failureRedirect: '/'}), function(req, res) {
-        var client_id = oauthTokens.slack
+        var client_id = oauthTokens.slack.client_id
         res.redirect('https://slack.com/oauth/authorize?client_id=' + client_id + '&scope=commands,channels:history,channels:read,channels:write,chat:write,users.profile:read,users.profile:write,users:read,users:read.email,users:write')
 });
 
@@ -278,16 +264,11 @@ app.get('/authorizeSlackReturn', function(req, res){
   })    
 })
 
-//Google oAuth
-app.get("/authorizeGoogle", function(req, res){
-  res.sendFile(__dirname + "/pages/adsfadsfs.html")
-});
-
 
 //Twitter Authentication
 passport.use(new Strategy({
-    consumerKey: 'fSF2cv9DMbMcWjCJEkJ3IOn5R',
-    consumerSecret: 's9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE',
+    consumerKey: oauthTokens.twitter.consumerKey,
+    consumerSecret: oauthTokens.twitter.consumerSecret,
     callbackURL: 'http://localhost:8000/authorizeTwitterReturn'
 }, function(token, tokenSecret, profile, callback) {
     MongoClient.connect(url, function(err, client) {
@@ -343,8 +324,9 @@ let storeSlackOAuth = function(global_username, access_token){
 let get_slack_access_token = function(req){
   return new Promise(function(resolve, reject){
     var code = req.url.split('?')[1].split('&')[0].split('=')[1];
-      var client_id = oauthTokens.slack
-      var request_url = 'https://slack.com/api/oauth.access?client_id=' + client_id + '&client_secret=5fa2d4ebb4170d7c540b3215915e21d1&code='+code;
+      var client_id = oauthTokens.slack.client_id
+      var client_secret = oauthTokens.slack.client_secret
+      var request_url = 'https://slack.com/api/oauth.access?client_id=' + client_id + '&client_secret=' + client_secret + '&code='+code;
       request.get(request_url, function(error, response, body){
         var obj = JSON.parse(body)
         slack_access_token = obj.access_token
@@ -449,7 +431,7 @@ let getSlackMessages = function(slackToken, channelName) {
                 msgPromises = [];
                 var counter = 0
                 msgs.forEach(function(msg) {
-                	if (counter < 9){
+                	if (counter < 2){
                     var platform = "<img src='http://www.icons101.com/icon_png/size_512/id_73479/Slack.png' style='height:30px; width:30px'> <div hidden>Slack</div>";
                     var sender_id = msg.user
                     var message = msg.text
@@ -574,6 +556,25 @@ let insertFakeOAuthData = function(db, callback) {
     assert.equal(1, result.ops.length);
     callback(result);
   });
+}
+
+let getEventBrite = function(latitude, longitude) {
+    return new Promise(function(resolve, reject) {
+        var request_url = 'https://www.eventbriteapi.com/v3/events/search/?sort_by=best&token=' + oauthTokens.eventbrite.anonymous_oauth_token + '&location.latitude=' + latitude + '&location.longitude=' + longitude;
+        var events = [];
+        request.get(request_url, function(error, response, body){
+            var obj = JSON.parse(body);
+            var raw_events = obj["events"]; 
+            raw_events.forEach(function(raw_event) {
+                events.push({
+                    "name": raw_event.name.text,
+                    "start_date": raw_event.start.utc,
+                    "end_date": raw_event.end.utc
+                });
+            })
+            resolve(events);
+        })
+    })
 }
 
 app.listen(8000);

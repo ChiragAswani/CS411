@@ -27,7 +27,6 @@ $(document).ready(function() {
 });
 }
 
-
 function displayData() {
 	var slackchannel = document.getElementById("slackchannel").value
 	console.log(slackchannel)
@@ -48,8 +47,23 @@ function displayData() {
 			            { "data": "time_stamp" }
 		        	]
 		    	});
-			  console.log(table)
-			});
+	});
+}
+
+function getGeoLocation() {
+	if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+  			console.log(position.coords.latitude, position.coords.longitude);
+  			document.cookie = "latitude=" + position.coords.latitude.toString() 
+  			document.cookie = "longitude=" + position.coords.longitude.toString();
+		});
+    } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+function showPosition(position) {
+    str = "Latitude: " + position.coords.latitude + 
+    "<br>Longitude: " + position.coords.longitude;
 }
 
 function check_username_exists() {
