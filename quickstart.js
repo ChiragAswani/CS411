@@ -68,7 +68,6 @@ app.get("/calendar_v1.html", function(req, res){
   }
   else{
     getEventBrite(latitude, longitude).then(function(eventBriteData){
-      console.log(eventBriteData)
       res.render(__dirname + "/pages/calendar_v1.pug", {eventBriteData: eventBriteData})
     })
   }
@@ -229,7 +228,7 @@ app.get("/messages", function(req, res){
             //res.sendFile(__dirname + "/pages/webpage_v1.html")
             res.send(my_messages)
         }).catch(function() {
-            console.log('Catch slack data')
+            console.log('Error with Slack Data')
             error_message =  {
                 "data": [{
                     "platform":"Error:",
@@ -396,8 +395,14 @@ let getTwitterMessages = function(twitterToken, twitterSecret) {
 let getSlackSenderName = function(sender_id, request_url){
     return new Promise(function(resolve, reject){
       request.get(request_url, function(error, response, body){
-      var obj = JSON.parse(body)
-      resolve(obj.profile.real_name)
+      try{
+      	var obj = JSON.parse(body)
+      	resolve(obj.profile.real_name)
+  	  } catch(err){
+  	  	reject(false)
+  	  	return
+  	  }
+      
       });
     })
 }
@@ -428,6 +433,8 @@ let getSlackMessages = function(slackToken, channelName) {
                 token: slackToken,
                 channel: channelId
             }).then(function(history) {
+
+
                 var msgs = history["messages"];
                 msgPromises = [];
                 var counter = 0
@@ -446,18 +453,23 @@ let getSlackMessages = function(slackToken, channelName) {
                             "message": message, 
                             "time_stamp": created_timestamp
                         })
-                    });
+                    }).catch(function() {
+            			console.log('Missed Message with Sender ID:' + sender_id)
+        			});
                     msgPromises.push(msgPromise);
                     counter += 1
                 	}
                 	setTimeout(functionTimer, 1000);
                 	counter = 0
                 })
-
                 Promise.all(msgPromises).then(function(sender_name) {
                     resolve(slack_messages);
                 });
+
             });
+
+
+
         });
     });
 }
