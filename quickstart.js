@@ -196,11 +196,12 @@ app.get("/accounts", function(req, res){
 //Returns all of the messages in the db on localhost:8000/messages
 //Why? To use DataTables on the front end
 app.get("/messages", function(req, res){
-    console.log(req.query)
+    
     if (req.query.q != undefined){
       slackchannel = req.query.q
-      if (slackchannel.includes("#")){
+      if (slackchannel.includes('#')){
         slackchannel = slackchannel.substring(1,slackchannel.length-1)
+        
       }
       
     var slackToken, twitterToken, twitterSecret;
