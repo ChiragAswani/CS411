@@ -34,32 +34,22 @@ function displayData() {
 	var refreshbutton = document.getElementById("refreshbutton");
 	refreshbutton.style.display = "none";
 	document.getElementById("slackchannel").style.display = "none";
-	var settings = {
-	  "async": true,
-	  "crossDomain": true,
-	  "url": "http://localhost:8000/messages?q=" + slackchannel,
-	  "method": "GET",
-	  "headers": {
-	    "Cache-Control": "no-cache",
-	    "Postman-Token": "ac4ee8b6-6377-4fd9-aa6b-711cb56cf693"
-	  }
-	}
-$(document).ready(function() {
-		$.ajax(settings).done(function (response) {
-		  table = $('#example').DataTable({
-	        "ajax": "messages",
-	        "columnDefs": [
-    		{ "width": "2%", "targets": 0 }
-  			],
-	        "columns": [
-		            { "data": "platform" },
-		            { "data": "sender_id" },
-		            { "data": "message" },
-		            { "data": "time_stamp" }
-	        	]
-	    	});
-		});
-	});
+	$(document).ready(function() {
+			//$.ajax(settings).done(function (response) {
+			  table = $('#example').DataTable({
+		        "ajax": "messages?q=" + slackchannel,
+		        "columnDefs": [
+	    		{ "width": "2%", "targets": 0 }
+	  			],
+		        "columns": [
+			            { "data": "platform" },
+			            { "data": "sender_id" },
+			            { "data": "message" },
+			            { "data": "time_stamp" }
+		        	]
+		    	});
+			  console.log(table)
+			});
 }
 
 function check_username_exists() {

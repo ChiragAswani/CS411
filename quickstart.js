@@ -183,6 +183,7 @@ app.get("/accounts", function(req, res){
 //Returns all of the messages in the db on localhost:8000/messages
 //Why? To use DataTables on the front end
 app.get("/messages", function(req, res){
+    console.log(req.query)
     if (req.query.q != undefined){
       slackchannel = req.query.q
       if (slackchannel.includes("#")){
@@ -217,10 +218,10 @@ app.get("/messages", function(req, res){
             console.log('Catch slack data')
             error_message =  {
                 "data": [{
-                    "platform":"facebook",
-                    "sender_id":"Chirag Aswani",
-                    "message":"<@U944XFFAB> uploaded a file: ",
-                    "time_stamp":"5/1/2018 18:45:55"}]
+                    "platform":"error",
+                    "sender_id":"error",
+                    "message":"error",
+                    "time_stamp":"error"}]
             }
             /*{
                 "data": [{
