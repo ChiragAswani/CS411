@@ -238,6 +238,25 @@ app.get("/messages", function(req, res){
 }
 })
 
+let getEventBrite = function(location) {
+    return new Promise(function(resolve, reject) {
+        var request_url = 'https://www.eventbriteapi.com/v3/events/search/?sort_by=best&token=' + oauthTokens.eventbrite.anonymous_oauth_token + '&location.address=' + location;
+        var events = [];
+        request.get(request_url, function(error, response, body){
+            var obj = JSON.parse(body);
+            var raw_events = obj["events"]; 
+            raw_events.forEach(function(raw_event) {
+                events.push({
+                    "name": raw_event.name.text,
+                    "start_date": raw_event.start.utc,
+                    "end_date": raw_event.end.utc
+                });
+            })
+            resolve(events);
+        })
+    })
+}
+
 //Using passport to Authorize Twitter
 //Is called when user clicks "Authorize All"
 app.get('/authorizeTwitter', passport.authenticate('twitter'))

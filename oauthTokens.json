@@ -3,5 +3,8 @@
 		"consumerKey": "fSF2cv9DMbMcWjCJEkJ3IOn5R",
 		"consumerSecret": "s9qsB5kITvkO9OhHw1FEXkqSRJeYxH9Oar7mwKClv8k1vD3oLE"
 	},
-	"slack": "309091349812.353983200660"
+	"slack": "309091349812.353983200660",
+    "eventbrite": {
+        "anonymous_oauth_token": "KPTNM7HS2PR4UYYANEKD" 
+    }
 }
