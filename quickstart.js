@@ -190,13 +190,6 @@ app.get("/messages", function(req, res){
       }
       
     }
-
-      
-    
-    
-
-    
-
     var slackToken, twitterToken, twitterSecret;
     let getSlackOAuthData = new Promise(function(resolve, reject) {
         MongoClient.connect(url, function(err, client) {
@@ -220,6 +213,8 @@ app.get("/messages", function(req, res){
             });
             my_messages = JSON.stringify(my_messages)
             res.send(my_messages)
+        }).catch(function() {
+          res.sendFile(__dirname + "/pages/webpage_v1.html")
         });
     })
 })
@@ -395,13 +390,18 @@ let getSlackMessages = function(slackToken, channelName) {
         slackClient.channels.list({
             token: slackToken
         }).then(function(channelList) {
-            var channelId = "";
+            var channelId;
             for(var i = 0;i < channelList['channels'].length; i++) {
                 var channel = channelList['channels'][i];
                 if (channel['name'] == channelName) {
                     channelId = channel['id'];
                     break;
+
                 }
+            }
+            if (channelId == undefined){
+              reject(false)
+              return
             }
             slackClient.channels.history({
                 token: slackToken,
