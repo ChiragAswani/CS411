@@ -228,7 +228,6 @@ app.get("/messages", function(req, res){
             //res.sendFile(__dirname + "/pages/webpage_v1.html")
             res.send(my_messages)
         }).catch(function() {
-            console.log('Error with Slack Data')
             error_message =  {
                 "data": [{
                     "platform":"Error:",
