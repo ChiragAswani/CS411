@@ -1,5 +1,6 @@
 # Socialite
 Project for CS 411 at Boston University - Software Engineering
+Please read the "Assignments README.md" in docs
 
 ## Description
 Socialite is a platform to view your messages, calendar, and newsfeed from popular social media sites into one platform. The goal is to have one area to view everything so there is less clutter in your life.
